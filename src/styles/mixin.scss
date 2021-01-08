@@ -1,0 +1,26 @@
+@mixin squareStyle($width, $height, $bg) {
+  width: $width;
+  height: $height;
+  background: url(../assets/open/#{$bg}.png) 0 0 no-repeat;
+  background-size: 100% 100%;
+}
+
+@mixin narrowkeyframes($name, $translateX, $translateY, $scale) {
+  @keyframes #{$name} {
+    0% {
+      transform: translate(#{$translateX}, #{$translateY}) scale(#{$scale});
+    }
+    // 12% {
+    //   transform: translate(#{$translateX}, #{$translateY}) scale(#{$scale});
+    // }
+    // 50% {
+    //   transform: translate(-65%, -50%) scale(1);
+    // }
+    // 80% {
+    //   transform: translate(-50%, -50%) scale(1.05);
+    // }
+    100% {
+      transform: translate(-50%, -50%) scale(1);
+    }
+  }
+}

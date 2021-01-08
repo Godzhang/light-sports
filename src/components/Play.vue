@@ -1,0 +1,407 @@
+<template>
+  <div class="play" ref="play">
+    <div class="image-box" ref="imageBox">
+      <!-- <div class="img-wrapper" ref="wrapper">
+        <img
+          :src="img"
+          class="img"
+          v-for="(img, i) in images"
+          :key="i"
+          :style="{ 'z-index': i+1 }"
+          ref="img"
+          alt
+        />
+      </div>-->
+      <div
+        class="img"
+        v-for="(img, i) in images"
+        :key="i"
+        :style="{ 'z-index': i }"
+        ref="img"
+      >
+        <img :src="img" class="int" alt />
+      </div>
+      <div
+        class="title"
+        ref="title"
+        :style="{
+          'font-size':
+            atlasTitle[theme][titleIndex].length > 10 ? '24px' : '30px'
+        }"
+        v-html="atlasTitle[theme][titleIndex]"
+      ></div>
+      <!-- <div class="title" ref="title">
+        <p>因为疫情</p>
+        <p>这一年的体育比赛有些不一样......</p>
+      </div>-->
+      <div class="desc" ref="desc" v-html="atlasDesc[theme][titleIndex]"></div>
+    </div>
+    <div class="skip" ref="skip" @click="flash(false)"></div>
+    <div class="mask" ref="mask"></div>
+  </div>
+</template>
+<script>
+import Velocity from "velocity-animate";
+import {
+  atlas,
+  atlasTitle,
+  atlasDesc,
+  atlasBreakPoints
+} from "@/common/global/atlas";
+import { sleep } from "@/common/utils/utils";
+import { coverBgColors } from "@/common/global/colors";
+
+const imageWidth = 848;
+const imageHeight = 616;
+const newWidth = document.documentElement.clientWidth;
+const newHeight = (newWidth * imageHeight) / imageWidth;
+
+export default {
+  inject: ["store"],
+  data() {
+    return {
+      atlasTitle,
+      atlasDesc,
+      atlasBreakPoints,
+      images: [],
+      titleIndex: 0,
+      isCurrentPage: false,
+      isAllAtlas: true
+    };
+  },
+  mounted() {
+    this.init();
+    this.$watch("store.step", async (step, prevStep) => {
+      if (step !== 3) return;
+      if (prevStep === 2) {
+        this.isAllAtlas = true;
+        // 展示所有图集
+        this.images = atlas[this.store.colorType].reduce(
+          (res, curr) => [...res, ...curr],
+          []
+        );
+        // this.images = atlas[this.store.colorType][0];
+      } else if (prevStep === 4) {
+        this.isAllAtlas = false;
+        this.images = atlas[this.theme][this.store.groupIndex];
+      }
+      this.$nextTick(async () => {
+        this.isCurrentPage = true;
+        // 如果图片过多，initSize过程会很慢，会导致页面出现前一直白屏
+        await this.initSize();
+        this.showPage();
+        // if (this.isAllAtlas) {
+        //   this.store.setGroupIndex(atlas[this.store.colorType].length - 1);
+        // }
+        await this.play();
+      });
+    });
+    this.$watch("store.groupIndex", groupIndex => {
+      if (this.isAllAtlas) {
+        this.titleIndex = 0;
+      } else {
+        this.titleIndex = groupIndex;
+      }
+    });
+  },
+  computed: {
+    theme() {
+      return this.store.colorType;
+    },
+    firstImageAnimateClass() {
+      return `${this.theme}-0-animate`;
+    }
+  },
+  methods: {
+    init() {
+      this.images = atlas[this.theme][this.store.groupIndex];
+    },
+    showPage() {
+      const { play } = this.$refs;
+      play.style.opacity = 1;
+      play.style.transform = "translateY(0)";
+    },
+    initSize() {
+      const documentWidth = document.body.clientWidth;
+
+      const imgs = this.$refs.img;
+      const imgInstances = imgs.map(item => item.childNodes[0]);
+
+      const reqs = imgInstances.map((imgIns, i) => {
+        return new Promise(resolve => {
+          imgIns.onload = () => {
+            imgs[i].style.width = newWidth + "px";
+            imgs[i].style.height = newHeight + "px";
+
+            resolve();
+          };
+          imgIns.onerror = resolve;
+          imgIns.src = this.images[i];
+        });
+      });
+      return Promise.all(reqs);
+    },
+    async play() {
+      const imgs = this.$refs.img;
+      const imageBox = this.$refs.imageBox;
+      const play = this.$refs.play;
+      const skip = this.$refs.skip;
+      const mask = this.$refs.mask;
+      const title = this.$refs.title;
+      const desc = this.$refs.desc;
+      const wait = 2000;
+      const points = atlasBreakPoints[this.theme];
+
+      const walk = async (i = 0) => {
+        if (!this.isCurrentPage) return Promise.reject(new Error("stop"));
+        const curr = imgs[i];
+        const next = imgs[i + 1];
+        const isReverse = (i + 1) % 2 === 0;
+        const nextImage = next.childNodes[0];
+        // 标题展示逻辑
+        if (this.isAllAtlas && points.includes(i + 1)) {
+          this.titleIndex = points.indexOf(i + 1);
+        } else if (!this.isAllAtlas) {
+          this.titleIndex = this.store.groupIndex;
+        }
+
+        Velocity(
+          nextImage,
+          { scale: isReverse ? 1.05 : 1 },
+          { duration: 0, mobileHA: false }
+        );
+        Velocity(next, { opacity: 1 }, { mobileHA: false, duration: 500 });
+        Velocity(
+          nextImage,
+          {
+            scale: isReverse ? 1 : 1.05,
+            translateX: ["-50%", "-50%"],
+            translateY: ["-50%", "-50%"]
+          },
+          { duration: 2500, mobileHA: false, queue: false }
+        );
+
+        await sleep(wait);
+        setTimeout(() => {
+          Velocity(nextImage, { scale: 1 }, { duration: 0, mobileHA: false });
+        }, 1500);
+        if (i === imgs.length - 2) {
+          return Promise.resolve();
+        } else {
+          await walk(i + 1);
+        }
+      };
+      // 从图集页进入标题不显示
+      if (this.isAllAtlas) {
+        imgs[0].classList.add(this.firstImageAnimateClass); // 首张图片缩放动画
+
+        if (this.store.colorType === "yellow") {
+          await sleep(4000);
+          Velocity(skip, { opacity: 1 }, { duration: 500 });
+          Velocity(
+            title,
+            { opacity: 1 },
+            { duration: 300, delay: 1500, mobileHA: false }
+          );
+          Velocity(
+            desc,
+            { opacity: 1 },
+            { duration: 300, delay: 1800, mobileHA: false }
+          );
+          await sleep(4000);
+        } else {
+          await sleep(3000);
+          Velocity(skip, { opacity: 1 }, { duration: 500 });
+          Velocity(title, { opacity: 1 }, { duration: 300, mobileHA: false });
+          Velocity(
+            desc,
+            { opacity: 1 },
+            { duration: 300, delay: 150, mobileHA: false }
+          );
+          await sleep(wait);
+        }
+      } else {
+        const image = imgs[0].childNodes[0];
+        Velocity(image, { scale: 1.05 }, { duration: 0, mobileHA: false });
+        Velocity(
+          image,
+          {
+            scale: 1,
+            translateX: ["-50%", "-50%"],
+            translateY: ["-50%", "-50%"]
+          },
+          { duration: 2000, mobileHA: false, queue: false }
+        );
+        setTimeout(() => {
+          Velocity(image, { scale: 1 }, { duration: 0, mobileHA: false });
+        }, 2500);
+        await sleep(wait);
+      }
+
+      await walk();
+
+      this.flash();
+    },
+    async flash(playAudio = true) {
+      const play = this.$refs.play;
+      const mask = this.$refs.mask;
+      const skip = this.$refs.skip;
+      const title = this.$refs.title;
+      const desc = this.$refs.desc;
+
+      if (playAudio) {
+        this.$audio.play("flash");
+        await sleep(300); // 相机声音预留的时间
+      } else {
+        this.$audio.pause();
+      }
+      this.store.nextStep();
+      mask.classList.add("animate");
+      await sleep(250);
+      play.style.opacity = 0;
+      play.style.transform = `translateY(-100%)`;
+      skip.style.opacity = 0;
+      title.style.opacity = 0;
+      desc.style.opacity = 0;
+      this.isCurrentPage = false;
+      this.resetStyles();
+    },
+    resetStyles() {
+      const mask = this.$refs.mask;
+      const imgs = this.$refs.img;
+      const imageBox = this.$refs.imageBox;
+      imageBox.classList.remove("animate");
+      if (imgs[0].classList.length === 2) {
+        imgs[0].classList.remove(imgs[0].classList.item(1));
+      }
+      imgs.forEach((img, i) => {
+        img.style.transform = "";
+        img.style.opacity = i > 0 ? 0 : 1;
+      });
+      mask.classList.remove("animate");
+    }
+  }
+};
+</script>
+<style lang="scss" scoped>
+@import "../styles/animate.scss";
+
+.play {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  transform: translateY(-100%);
+  z-index: 97;
+  background-color: #000;
+  .image-box {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    transform-origin: 45vw 4.47vw;
+    overflow: hidden;
+    &.animate {
+      animation: boxNarrow 1s ease-in-out forwards;
+    }
+    .img {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      opacity: 0;
+      overflow: hidden;
+      transform-origin: 50% 50%;
+      &:first-child {
+        opacity: 1;
+        &.yellow-0-animate {
+          // animation: yellow0Clarity 7s ease-in-out forwards;
+          animation: yellow0Clarity 7s cubic-bezier(0.39, 0.575, 0.565, 1)
+            forwards;
+          // transform: translate(-50%, -50%) scale(1);
+        }
+        // @each $color in red, green, blue, white {
+        //   &.#{"" + $color}-#{0}-animate {
+        //     transform: translate(-50%, -50%) scale(1);
+        //   }
+        // }
+        // @each $color in red, green, blue, white, yellow {
+        @each $color in red, green, blue, white {
+          &.#{"" + $color}-#{0}-animate {
+            animation: #{$color}#{0}Clarity 3s ease-in-out forwards;
+            // transform: translate(-50%, -50%) scale(1);
+          }
+        }
+      }
+      .int {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        height: 100%;
+        transform: translate(-50%, -50%);
+      }
+      &:last-child {
+        &.red-animate {
+          animation: redFirstNarrow 1s ease-out forwards;
+        }
+      }
+    }
+    .title {
+      box-sizing: border-box;
+      position: absolute;
+      top: 30vw;
+      left: 50%;
+      width: 100%;
+      line-height: 1.25;
+      text-align: center;
+      transform: translateX(-50%);
+      color: #fff;
+      opacity: 0;
+      white-space: pre-wrap;
+    }
+    .desc {
+      box-sizing: border-box;
+      position: absolute;
+      top: 135vw;
+      left: 50%;
+      width: 100%;
+      padding: 0 5vw;
+      text-align: center;
+      transform: translateX(-50%);
+      font-size: 20px;
+      line-height: 24px;
+      color: #fff;
+      opacity: 0;
+      white-space: pre-wrap;
+    }
+  }
+  .skip {
+    position: absolute;
+    top: 12vw;
+    right: 0;
+    width: 20vw;
+    height: 10vw;
+    z-index: 10;
+    opacity: 0;
+    background: url(../assets/skip.png) 0 0 no-repeat;
+    background-size: 100% 100%;
+  }
+  .mask {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: none;
+    z-index: 10;
+    background-color: #fff;
+    &.animate {
+      display: block;
+      animation: flash 1s ease forwards;
+    }
+  }
+}
+</style>
