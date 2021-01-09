@@ -19,6 +19,7 @@ module.exports = {
     "no-useless-return": "off",
     camelcase: "off",
     "vue/no-unused-components": "off",
-    "no-loop-func": "off"
+    "no-loop-func": "off",
+    "comma-dangle": "off"
   }
 };

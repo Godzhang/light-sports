@@ -46,61 +46,63 @@ export default {
       images: [],
       swiperAtlas: [],
       swiperOptions: {
-        loop: true,
+        loop: false,
         speed: 400,
         effect: "myCustomTransition",
         pagination: {
-          el: ".swiper-pagination"
+          el: ".swiper-pagination",
         },
         virtualTranslate: true,
         watchSlidesProgress: true,
         on: {
-          setTranslate: translate => {
-            if (this.$refs.mySwiper && this.$refs.mySwiper.$swiper) {
+          setTranslate: (translate) => {
+            this.$nextTick(() => {
               this.setTranslate(this.$refs.mySwiper.$swiper, translate);
-            }
-          }
-        }
-      }
+            });
+          },
+        },
+      },
     };
   },
   mounted() {
-    Velocity(
-      this.$refs.shuffle,
-      { translateY: "0", opacity: 1 },
-      { duration: 0, mobileHA: false }
-    );
+    this.showPage();
     this.initType(this.store.colorType);
-    this.$watch("store.step", step => {
+    this.swiper.slideNext(0);
+
+    this.$watch("store.step", (step) => {
       if (step === 4) {
         Velocity(
           this.$refs.shuffle,
-          { translateY: "0", opacity: 1 },
+          { translateY: "0%", opacity: 1 },
           { duration: 0, mobileHA: false }
         );
       }
     });
-    this.$watch("store.colorType", type => {
+    this.$watch("store.colorType", (type) => {
       this.initType(type);
-    });
-    this.$watch("store.groupIndex", index => {
-      this.swiper.slideToLoop(index, 0);
     });
   },
   computed: {
     swiper() {
       return this.$refs.mySwiper.$swiper;
-    }
+    },
   },
   watch: {
     async images(images) {
       this.swiperAtlas = await getCompositionUrl(images, this.type);
-    }
+    },
   },
   methods: {
     initType(type) {
       this.type = type;
       this.images = altasCover[type];
+    },
+    showPage() {
+      Velocity(
+        this.$refs.shuffle,
+        { translateY: "0", opacity: 1 },
+        { duration: 0, mobileHA: false }
+      );
     },
     async backToPage(pageNum) {
       const shuffle = this.$refs.shuffle;
@@ -134,7 +136,7 @@ export default {
         }
         TweenMax.set(slide, {
           x,
-          y
+          y,
         });
         const clip = (val, min, max) => Math.max(min, Math.min(val, max));
         const ZOOM_FACTOR = 0.8; // 淡入 scale 0.4, 淡出 scale 0.4
@@ -152,12 +154,12 @@ export default {
     },
     vote() {
       this.store.setVoteNum();
-    }
+    },
   },
   components: {
     Swiper,
-    SwiperSlide
-  }
+    SwiperSlide,
+  },
 };
 </script>
 <style lang="scss" scoped>
@@ -171,6 +173,7 @@ export default {
   height: 100%;
   z-index: 96;
   opacity: 0;
+  transform: translateY(-100%);
   @each $color in red, green, blue, white, yellow {
     &.#{"" + $color} {
       background: url("~@/assets/shuffle/bg-#{$color}.jpg") 0 0 no-repeat;

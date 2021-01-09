@@ -6,6 +6,8 @@ const cache = {};
 const play = name => {
   if (!name) return;
 
+  audio.loop = name !== "flash";
+
   let url = "";
   if (!cache[name]) {
     cache[name] = url = require(`../../assets/mp3/${name}.mp3`);

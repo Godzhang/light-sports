@@ -27,7 +27,7 @@ import { vw } from "@/common/global/global";
 export default {
   inject: ["store"],
   props: {
-    theme: String
+    theme: String,
   },
   data() {
     return {
@@ -39,7 +39,7 @@ export default {
         green: 0,
         blue: 0,
         white: 0,
-        yellow: 0
+        yellow: 0,
       },
       swiperOptions: {
         initialSlide: 0,
@@ -48,16 +48,6 @@ export default {
         loop: this.theme !== "yellow",
         watchOverflow: true,
         on: {
-          init: () => {
-            this.$nextTick(() => {
-              const swiper = this.swiper;
-              const slides = swiper.slides;
-              for (let i = 0; i < slides.length; i++) {
-                let slide = slides.eq(i);
-                slide.css("zIndex", 100 - i); // 设置slide的z-index层级
-              }
-            });
-          },
           setTranslate: () => {
             this.$nextTick(() => {
               const swiper = this.swiper;
@@ -67,15 +57,29 @@ export default {
               for (let i = 0; i < slides.length; i++) {
                 let slide = slides.eq(i);
                 let progress = slides[i].progress;
+                console.log(slide[0]);
+                console.log(progress);
+                console.log("---------------");
+                slide.css("zIndex", 100 - i);
 
                 if (progress <= 0) {
                   // 左边slide位移
                   slide.transform(
-                    `translate3d(${progress * offsetAfter}px, 0, 0) scale(${1 -
-                      Math.abs(progress) / 20})`
+                    `translate3d(${progress * offsetAfter}px, 0, 0) scale(${
+                      1 - Math.abs(progress) / 20
+                    })`
                   );
                   slide.css("opacity", progress + 3); // 最左边slide透明
                 }
+                //  else if (progress >= 2) {
+                //   slide.transform(
+                //     `translate3d(${
+                //       (progress - slides.length) * offsetAfter
+                //     }px, 0, 0) scale(${
+                //       1 - Math.abs(progress - slides.length) / 20
+                //     })`
+                //   );
+                // }
 
                 if (progress > 0) {
                   slide.css("opacity", 1 - progress); // 左边slide透明
@@ -83,7 +87,7 @@ export default {
               }
             });
           },
-          setTransition: transition => {
+          setTransition: (transition) => {
             this.$nextTick(() => {
               const swiper = this.swiper;
               const slides = swiper.slides;
@@ -97,15 +101,15 @@ export default {
             this.$nextTick(() => {
               this.colorIndexMap[this.theme] = this.swiper.realIndex;
             });
-          }
-        }
-      }
+          },
+        },
+      },
     };
   },
   computed: {
     swiper() {
       return this.$refs.mySwiper.$swiper;
-    }
+    },
   },
   methods: {
     getAtlasStyle() {
@@ -113,14 +117,14 @@ export default {
       const len = atlasCoverText[theme][this.colorIndexMap[theme]].length;
       const size = len >= 6 ? "14px" : "16px";
       return {
-        "font-size": size
+        "font-size": size,
       };
     },
     getAtlasName() {
       const theme = this.theme;
       return atlasCoverText[theme][this.colorIndexMap[theme]];
-    }
-  }
+    },
+  },
 };
 </script>
 <style lang="scss" scoped>

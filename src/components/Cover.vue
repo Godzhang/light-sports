@@ -37,7 +37,7 @@ import Velocity from "velocity-animate";
 import {
   gradientColors,
   gradientRgbColors,
-  coverBgColors
+  coverBgColors,
 } from "@/common/global/colors.js";
 import {
   hexToRgba,
@@ -45,7 +45,7 @@ import {
   getMixColorRgbStr,
   sleep,
   clip,
-  once
+  once,
 } from "@/common/utils/utils.js";
 import { atlas, flattenAtlas } from "@/common/global/atlas";
 import { themes } from "@/common/global/global";
@@ -55,7 +55,7 @@ const documentHeight = document.body.clientHeight;
 const vw = documentWidth / 100;
 
 const lamps = {};
-themes.forEach(color => {
+themes.forEach((color) => {
   lamps[color] = require(`../assets/cover/${color}-lamp.png`);
 });
 
@@ -70,11 +70,17 @@ export default {
       timer: null,
       moveDir: "right",
       isSliding: false,
-      savedActiveIndex: 0,
       isTrigger: false,
+      savedActiveIndex: 0,
+      // prevProgress: -1,
+      // currProgress: -1,
+      // slideChange: false,
+      moveX: 0,
+      moveTime: 0,
       swiperOptions: {
         initialSlide: 0,
         touchRatio: 0.25,
+        // shortSwipes: false,
         watchSlidesProgress: true,
         slidesPerView: 5,
         centeredSlides: true,
@@ -83,13 +89,12 @@ export default {
           init: () => {
             this.$nextTick(() => {
               this.calcSlidePos();
-              // this.calcLampMask();
             });
           },
-          progress: progress => {
+          progress: (progress) => {
             this.$nextTick(() => {
               this.calcSlidePos(progress);
-              // this.calcLampMask(progress);
+              this.currProgress = progress;
             });
           },
           transitionEnd: () => {
@@ -98,20 +103,37 @@ export default {
                 this.store.setType(themes[this.swiper.realIndex]);
               }
               this.savedActiveIndex = this.swiper.activeIndex;
-              // this.setLampMask();
+              // if (this.slideChange) {
+              //   this.savedActiveIndex = this.swiper.activeIndex;
+              //   this.slideChange = false;
+              // }
+              // console.log(this.prevProgress, this.currProgress);
+              // console.log(this.prevProgress === this.currProgress);
+              // if (this.prevProgress === this.currProgress) {
+              //   this.$refs.coverBg.style.backgroundColor =
+              //     coverBgColors[themes[this.swiper.realIndex]];
+              // } else {
+              //   this.prevProgress = this.currProgress;
+              //   this.savedActiveIndex = this.swiper.activeIndex;
+              // }
             });
           },
-          slideNextTransitionStart: swiper => {
+          // slideChange: () => {
+          //   console.log("slide change");
+          //   this.slideChange = true;
+          // },
+          slideNextTransitionStart: () => {
             this.moveDir = "right";
           },
-          slidePrevTransitionStart: swiper => {
+          slidePrevTransitionStart: () => {
             this.moveDir = "left";
-          }
-        }
-      }
+          },
+        },
+      },
     };
   },
   created() {
+    // init random color
     let initIndex = Math.floor(Math.random() * 5);
     this.store.setType(themes[initIndex]);
     this.swiperOptions.initialSlide = initIndex;
@@ -136,7 +158,7 @@ export default {
     },
     theme() {
       return this.store.colorType;
-    }
+    },
   },
   watch: {
     theme(theme) {
@@ -146,7 +168,7 @@ export default {
       if (coverBgColor !== bgColor) {
         Velocity(coverBg, { backgroundColor: coverBgColors[theme] });
       }
-    }
+    },
   },
   methods: {
     init() {
@@ -163,13 +185,16 @@ export default {
     bindSwiper() {
       const swiperDom = this.$refs.mySwiper.$el;
       let startX = 0;
+      let startTime = 0;
 
-      swiperDom.addEventListener("touchstart", e => {
+      swiperDom.addEventListener("touchstart", (e) => {
         this.isSliding = true;
         startX = e.touches[0].clientX;
+        startTime = Date.now();
       });
-      swiperDom.addEventListener("touchmove", e => {
+      swiperDom.addEventListener("touchmove", (e) => {
         if (!this.isSliding) return;
+        this.moveX = Math.abs(e.touches[0].clientX - startX);
         if (e.touches[0].clientX - startX < 0) {
           this.moveDir = "right";
         } else {
@@ -177,6 +202,7 @@ export default {
         }
       });
       swiperDom.addEventListener("touchend", () => {
+        this.moveTime = Date.now() - startTime;
         this.isSliding = false;
       });
     },
@@ -186,22 +212,18 @@ export default {
       cover.style.transform = `translateY(0)`;
     },
     async showParts() {
+      const { note, voteEntry } = this.$refs;
       this.showSlide();
-      // Velocity(
-      //   this.$refs.slider.$el,
-      //   { opacity: 1 },
-      //   { duration: 800, delay: 400, mobileHA: false }
-      // );
       Velocity(
-        this.$refs.note,
+        note,
         { opacity: 1 },
         { duration: 800, delay: 400, mobileHA: false }
       );
       await Velocity(
-        this.$refs.voteEntry,
+        voteEntry,
         {
           translateX: ["0%", "-100%"],
-          opacity: 1
+          opacity: 1,
         },
         { duration: 800, delay: 800, mobileHA: false }
       );
@@ -214,40 +236,13 @@ export default {
         const slide = allSlides[i];
 
         if (activeIndex === i) {
-          Velocity(slide, { opacity: 1 }, { duration: 1000 });
+          Velocity(slide, { opacity: 1 }, { duration: 1000, delay: 400 });
         } else if (activeIndex === i + 1 || activeIndex === i - 1) {
           Velocity(slide, { opacity: 1 }, { duration: 500, delay: 800 });
         } else {
           Velocity(slide, { opacity: 1 }, { duration: 500, delay: 1000 });
         }
       }
-    },
-    switchLamp(percentage) {
-      const currentLamp = this.swiper.slides[this.swiper.activeIndex]
-        .children[0];
-      const [gradient, lamp, lampLight] = currentLamp.childNodes;
-
-      lampLight.style.opacity = clip(percentage + 0.5, 0, 1);
-      lamp.style.opacity = 1 - percentage;
-      gradient.style.boxShadow = `0 0 ${120}px ${(percentage * documentHeight) /
-        1.2}px rgba(${gradientRgbColors[this.theme]}, 0.5)`;
-    },
-    fadeOutAround(percentage) {
-      const currentSlide = this.swiper.slides[this.swiper.activeIndex];
-      const parent = currentSlide.parentNode;
-      const childs = Array.from(parent.childNodes);
-      const index = childs.findIndex(child => child === currentSlide);
-      let ratio = 1;
-      if (percentage <= 0.5) {
-        ratio = (0.5 - percentage) / 0.5;
-      } else {
-        ratio = 0;
-      }
-
-      childs[index - 2].style.opacity = ratio;
-      childs[index - 1].style.opacity = ratio;
-      childs[index + 1].style.opacity = ratio;
-      childs[index + 2].style.opacity = ratio;
     },
     async animationToNext() {
       const cover = this.$refs.cover;
@@ -260,17 +255,11 @@ export default {
       this.store.nextStep();
       Velocity(lampLight, { opacity: 0 }, { duration: 300, mobileHA: false });
       await Velocity(lamp, { opacity: 0 }, { duration: 300, mobileHA: false });
-      // Velocity(
-      //   lampBox,
-      //   { opacity: 0 },
-      //   { duration: 300, delay: 300, mobileHA: false }
-      // );
       this.hidePage();
-      this.isTrigger = false;
       this.$audio.play(this.theme);
     },
     async showGradient(gradient, lamp, lampLight) {
-      return new Promise(resolve => {
+      return new Promise((resolve) => {
         let percentage = 0;
         let timer = null;
         const fn = () => {
@@ -297,9 +286,9 @@ export default {
             );
           }
           lamp.style.opacity = 1 - percentage;
-          gradient.style.boxShadow = `0 0 ${120}px ${(percentage *
-            documentHeight) /
-            1.2}px rgba(${gradientRgbColors[this.theme]}, 1)`;
+          gradient.style.boxShadow = `0 0 ${120}px ${
+            (percentage * documentHeight) / 1.2
+          }px rgba(${gradientRgbColors[this.theme]}, 1)`;
 
           timer = requestAnimationFrame(fn);
         };
@@ -321,75 +310,40 @@ export default {
         let scale = 1 - Math.abs(slideProgress) / 5;
         let translateY = -(130 * vw * (1 - scale)) / 2;
         let zIndex = 999 - Math.abs(Math.round(10 * slideProgress));
-        let opacity = 1;
 
-        if (activeIndex === i) {
-          this.changeCoverBg(slideProgress);
-          // this.calcLampMask(slideProgress, activeIndex);
-        }
+        // if (activeIndex === i) {
+        //   this.changeCoverBg(slideProgress);
+        // }
         if (activeIndex === i + 1 || activeIndex === i - 1) {
           lamp.style.filter = `brightness(0.5)`;
-          opacity = 0.8;
         } else if (activeIndex === i + 2 || activeIndex === i - 2) {
           lamp.style.filter = `brightness(0.3)`;
-          opacity = 0.6;
         } else {
           lamp.style.filter = `brightness(${activeIndex === i ? 1 : 0.3})`;
-          opacity = activeIndex === i ? 1 : 0.3;
         }
 
         Velocity(slide, { translateY, scale, zIndex }, { duration: 0 });
       }
     },
-    // calcLampMask(progress, index) {
-    //   if (!progress) return;
-    //   const slides = this.swiper.slides;
-    //   const activeIndex = this.savedActiveIndex;
-    //   const allSlides = Object.values(slides).slice(0, -1);
-
-    //   const { color, nextColor, ratio } = this.getMovingColorsAndRatio(
-    //     progress
-    //   );
-    //   for (let i = 0; i < allSlides.length; i++) {
-    //     const slide = allSlides[i];
-    //     const slideProgress = slide.progress;
-    //     const lampItem = slide.children[0];
-    //     const [gradient, lamp, lampLight] = lampItem.childNodes;
-    //     const mask = lamp.childNodes[1];
-
-    //     if (activeIndex === i + 1 || activeIndex === i - 1) {
-    //       mask.style.backgroundColor = `rgba(${getMixColorRgbStr(
-    //         coverBgColors[color],
-    //         coverBgColors[nextColor],
-    //         ratio
-    //       )}, 0.8)`;
-    //     } else if (activeIndex === i + 2 || activeIndex === i - 2) {
-    //       mask.style.backgroundColor = `rgba(${getMixColorRgbStr(
-    //         coverBgColors[color],
-    //         coverBgColors[nextColor],
-    //         ratio
-    //       )}, 0.9)`;
-    //     } else {
-    //       mask.style.backgroundColor = `rgba(${getMixColorRgbStr(
-    //         coverBgColors[color],
-    //         coverBgColors[nextColor],
-    //         ratio
-    //       )}, 0)`;
-    //     }
-    //   }
-    // },
     changeCoverBg(progress) {
       if (!this.isSliding) return;
       const { color, nextColor, ratio } = this.getMovingColorsAndRatio(
         progress
       );
-      const mixColor = `rgba(${getMixColorRgbStr(
+
+      let mixColor = `rgba(${getMixColorRgbStr(
         coverBgColors[color],
         coverBgColors[nextColor],
         ratio
       )}, 1)`;
+
+      // if (ratio === 1) {
+      //   if (this.moveX <= 150) {
+      //     mixColor = coverBgColors[color];
+      //   }
+      // }
+
       this.$refs.coverBg.style.backgroundColor = mixColor;
-      // this.$refs.slider.transitionColor(color, nextColor, ratio);
     },
     getMovingColorsAndRatio(progress) {
       const { slides } = this.swiper;
@@ -406,15 +360,15 @@ export default {
       }
       return { color, nextColor, ratio };
     },
-    pollLight(prevIndex = -1) {
-      const fn = async () => {
+    pollLight() {
+      const fn = async (prevIndex = -1) => {
         const { slides, activeIndex } = this.swiper;
         const arr = [
           activeIndex - 2,
           activeIndex - 1,
           activeIndex + 1,
-          activeIndex + 2
-        ].filter(i => i !== prevIndex);
+          activeIndex + 2,
+        ].filter((i) => i !== prevIndex);
         const random = Math.floor(Math.random() * arr.length);
         const index = arr[random];
         const slide = slides[index];
@@ -430,7 +384,7 @@ export default {
           { opacity: 0 },
           { duration: 1000, mobileHA: false }
         );
-        this.timer = setTimeout(fn, 2000);
+        this.timer = setTimeout(fn.bind(null, index), 2000);
       };
 
       this.timer = setTimeout(fn, 2000);
@@ -453,7 +407,6 @@ export default {
         const index = +target.dataset.index;
         if (this.swiper.realIndex === index) {
           this.animationToNext();
-          this.store.setGroupIndex(0);
         }
       }
     },
@@ -461,6 +414,7 @@ export default {
       this.resetLamp();
       this.resetAround();
       this.resetPage();
+      this.isTrigger = false;
     },
     resetPage() {
       this.$refs.note.style.opacity = 1;
@@ -471,25 +425,24 @@ export default {
       const lampBox = this.$refs.lampBox;
       const currentLamp = this.swiper.slides[this.swiper.activeIndex]
         .children[0];
-      const [gradient, lamp, lampLight] = currentLamp.childNodes;
+      const [gradient, lamp] = currentLamp.childNodes;
 
       lampBox.style.opacity = 1;
       gradient.style.boxShadow = `0 0 0px 0px rgba(0,0,0,0)`;
       lamp.style.opacity = 1;
-      // this.$refs.slider.$el.style.opacity = 1;
     },
     resetAround() {
       const currentSlide = this.swiper.slides[this.swiper.activeIndex];
       const parent = currentSlide.parentNode;
       const childs = Array.from(parent.childNodes);
-      const index = childs.findIndex(child => child === currentSlide);
+      const index = childs.findIndex((child) => child === currentSlide);
 
       childs[index - 2].style.opacity = 1;
       childs[index - 1].style.opacity = 1;
       childs[index + 1].style.opacity = 1;
       childs[index + 2].style.opacity = 1;
-    }
-  }
+    },
+  },
 };
 </script>
 <style lang="scss" scoped>
@@ -498,8 +451,6 @@ export default {
 
 $lamp-width: 42vw;
 $lamp-height: 130vw;
-// $lamp-width: 47.07vw;
-// $lamp-height: 129.6vw;
 
 .cover {
   position: relative;
@@ -564,15 +515,8 @@ $lamp-height: 130vw;
           left: 0;
           width: 100%;
           height: 100%;
-          // background-color: rgba($color: #430d0d, $alpha: 0.8);
           clip-path: polygon(42% 0, 48% 0, 53% 30%, 100% 100%, 0 100%, 38% 30%);
         }
-        // @each $color in red, green, blue, white, yellow {
-        //   &.#{"" + $color} {
-        //     background: url("~@/assets/cover/#{$color}-lamp.png") 0 0 no-repeat;
-        //     background-size: 100% 100%;
-        //   }
-        // }
       }
       .lamp-light {
         position: absolute;
@@ -622,10 +566,14 @@ $lamp-height: 130vw;
     display: block;
     position: absolute;
     top: 5.33vw;
-    left: -2vw;
-    width: 45vw;
+    left: -5vw;
+    width: 48vw;
     height: 9.07vw;
     transform: translateX(-100%);
+    @media screen and (max-width: 320px) {
+      left: -7vw;
+      width: 52vw;
+    }
     &::before {
       content: "";
       box-sizing: border-box;
@@ -647,15 +595,20 @@ $lamp-height: 130vw;
     .vote-entry-txt {
       position: absolute;
       top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
+      right: 0;
+      transform: translateY(-50%);
       display: block;
-      width: 38vw;
-      height: 4.13vw;
+      width: calc(100% - 5vw);
+      line-height: 1.25;
+      text-align: center;
       color: #fff;
       font-weight: bold;
-      font-size: 13px;
+      font-size: 3vw;
       text-shadow: 2px 2px 2px rgba(0, 0, 0, 0.6);
+      @media screen and (max-width: 320px) {
+        font-size: 12px;
+        transform: translateY(-50%) scale(0.9);
+      }
     }
   }
 }
