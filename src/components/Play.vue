@@ -24,9 +24,10 @@
       <div
         class="title"
         ref="title"
+        v-if="atlasTitle[theme][titleIndex]"
         :style="{
           'font-size':
-            atlasTitle[theme][titleIndex].length > 10 ? '24px' : '30px',
+            atlasTitle[theme][titleIndex].length > 10 ? '24px' : '30px'
         }"
         v-html="atlasTitle[theme][titleIndex]"
       ></div>
@@ -42,10 +43,11 @@ import {
   atlas,
   atlasTitle,
   atlasDesc,
-  atlasBreakPoints,
+  atlasBreakPoints
 } from "@/common/global/atlas";
 import { sleep } from "@/common/utils/utils";
 import { coverBgColors } from "@/common/global/colors";
+import { vw, vh } from "@/common/global/global";
 
 const imageWidth = 848;
 const imageHeight = 616;
@@ -62,7 +64,7 @@ export default {
       images: [],
       titleIndex: 0,
       isCurrentPage: false,
-      isAllAtlas: true,
+      isAllAtlas: true
     };
   },
   mounted() {
@@ -86,13 +88,14 @@ export default {
 
       this.$nextTick(async () => {
         this.isCurrentPage = true;
-        // 如果图片过多，initSize过程会很慢，会导致页面出现前一直白屏
+
         await this.initSize();
         this.showPage();
+        this.initTextPos();
         await this.play();
       });
     });
-    this.$watch("store.groupIndex", (groupIndex) => {
+    this.$watch("store.groupIndex", groupIndex => {
       this.setTitleIndex();
     });
   },
@@ -101,8 +104,8 @@ export default {
       return this.store.colorType;
     },
     firstImageAnimateClass() {
-      return `${this.theme}-0-animate`;
-    },
+      return `${this.theme}-one-animate`;
+    }
   },
   methods: {
     init() {
@@ -113,31 +116,47 @@ export default {
       play.style.opacity = 1;
       play.style.transform = "translateY(0)";
     },
+    initTextPos() {
+      const { title, desc } = this.$refs;
+      const img = this.$refs.img[0];
+      const bodyHeight = document.body.clientHeight;
+      const imgHeight = +img.style.height.slice(0, -2);
+      const imgTop = (bodyHeight - imgHeight) / 2;
+      const imgBottom = (bodyHeight - imgHeight) / 2 + imgHeight;
+      title.style.top = imgTop - 30 * 1.25 * 2 + "px";
+      desc.style.top = imgBottom + 20 + "px";
+    },
     initSize() {
-      const documentWidth = document.body.clientWidth;
-
       const imgs = this.$refs.img;
-      const imgInstances = imgs.map((item) => item.childNodes[0]);
-
-      const reqs = imgInstances.map((imgIns, i) => {
-        return new Promise((resolve) => {
-          imgIns.onload = () => {
-            imgs[i].style.width = newWidth + "px";
-            imgs[i].style.height = newHeight + "px";
-
-            resolve();
-          };
-          imgIns.onerror = resolve;
-          imgIns.src = this.images[i];
-        });
+      imgs.forEach(img => {
+        img.style.width = newWidth + "px";
+        img.style.height = newHeight + "px";
       });
-      return Promise.all(reqs);
+      // const documentWidth = document.body.clientWidth;
+
+      // const imgs = this.$refs.img;
+      // const imgInstances = imgs.map(item => item.childNodes[0]);
+
+      // const reqs = imgInstances.map((imgIns, i) => {
+      //   return new Promise(resolve => {
+      //     imgIns.onload = () => {
+      //       imgs[i].style.width = newWidth + "px";
+      //       imgs[i].style.height = newHeight + "px";
+
+      //       resolve();
+      //     };
+      //     imgIns.onerror = resolve;
+      //     imgIns.src = this.images[i];
+      //   });
+      // });
+      // return Promise.all(reqs);
     },
     async play() {
       const { imageBox, play, skip, mask, title, desc } = this.$refs;
       const imgs = this.$refs.img;
-      const wait = 2000;
+      const wait = 2500;
       const points = atlasBreakPoints[this.theme];
+      let prevTitleIndex = 1;
 
       const walk = async (i = 0) => {
         if (!this.isCurrentPage) return Promise.reject(new Error("stop"));
@@ -148,6 +167,17 @@ export default {
         // 标题展示逻辑
         if (this.isAllAtlas && points.includes(i + 1)) {
           this.titleIndex = points.indexOf(i + 1);
+
+          // 切换图集后，尝试播放特效音
+          try {
+            if (this.prevTitleIndex !== this.titleIndex + 1) {
+              this.$audio_band.pause();
+            }
+            this.$audio_band.play(this.theme, this.titleIndex + 1);
+            prevTitleIndex = this.titleIndex + 1;
+          } catch (e) {
+            console.log("not have relative audio");
+          }
         } else if (!this.isAllAtlas) {
           this.titleIndex = this.store.groupIndex;
         }
@@ -163,7 +193,7 @@ export default {
           {
             scale: isReverse ? 1 : 1.05,
             translateX: ["-50%", "-50%"],
-            translateY: ["-50%", "-50%"],
+            translateY: ["-50%", "-50%"]
           },
           { duration: 2500, mobileHA: false, queue: false }
         );
@@ -178,8 +208,16 @@ export default {
           await walk(i + 1);
         }
       };
+
       // 从图集页进入标题不显示
       if (this.isAllAtlas) {
+        // 如果第一组图有特效音，播放
+        try {
+          this.$audio_band.play(this.theme, 1);
+        } catch (e) {
+          console.log("not have relative audio");
+        }
+
         imgs[0].classList.add(this.firstImageAnimateClass); // 首张图片缩放动画
 
         if (this.store.colorType === "yellow") {
@@ -216,6 +254,11 @@ export default {
           await sleep(wait);
         }
       } else {
+        try {
+          this.$audio_band.play(this.theme, this.store.groupIndex + 1);
+        } catch (e) {
+          console.log("not have relative audio");
+        }
         const image = imgs[0].childNodes[0];
         Velocity(image, { scale: 1.05 }, { duration: 0, mobileHA: false });
         Velocity(
@@ -223,7 +266,7 @@ export default {
           {
             scale: 1,
             translateX: ["-50%", "-50%"],
-            translateY: ["-50%", "-50%"],
+            translateY: ["-50%", "-50%"]
           },
           { duration: 2500, mobileHA: false, queue: false }
         );
@@ -250,36 +293,35 @@ export default {
       this.flash();
     },
     async flash(playAudio = true) {
-      const play = this.$refs.play;
-      const mask = this.$refs.mask;
-      const skip = this.$refs.skip;
-      const title = this.$refs.title;
-      const desc = this.$refs.desc;
+      const { mask, play, skip, title, desc } = this.$refs;
 
-      this.$audio.play("flash");
       if (playAudio) {
+        this.$audio_bg.play("flash");
         await sleep(300); // 相机声音预留的时间
       } else {
-        this.$audio.pause();
+        this.$audio_bg.pause();
       }
+      this.$audio_band.pause();
+
       this.store.nextStep();
       mask.classList.add("animate");
       await sleep(250);
 
+      this.hidePage();
       this.isCurrentPage = false;
-      this.resetStyles();
+      setTimeout(() => {
+        this.resetStyles();
+      }, 500);
     },
-    resetStyles() {
-      const mask = this.$refs.mask;
-      const imgs = this.$refs.img;
-      const imageBox = this.$refs.imageBox;
-      const play = this.$refs.play;
-      const skip = this.$refs.skip;
-      const title = this.$refs.title;
-      const desc = this.$refs.desc;
-
+    hidePage() {
+      const { play } = this.$refs;
       play.style.opacity = 0;
       play.style.transform = `translateY(-100%)`;
+    },
+    resetStyles() {
+      const { mask, imageBox, play, skip, title, desc } = this.$refs;
+      const imgs = this.$refs.img;
+
       skip.style.opacity = 0;
       skip.style.transform = "translateX(100%)";
       title.style.opacity = 0;
@@ -300,8 +342,8 @@ export default {
       } else {
         this.titleIndex = this.store.groupIndex;
       }
-    },
-  },
+    }
+  }
 };
 </script>
 <style lang="scss" scoped>
@@ -333,14 +375,15 @@ export default {
       top: 50%;
       left: 50%;
       transform: translate(-50%, -50%);
+      width: 100%;
       opacity: 0;
       overflow: hidden;
       transform-origin: 50% 50%;
       &:first-child {
         opacity: 1;
-        &.yellow-0-animate {
+        &.yellow-one-animate {
           // animation: yellow0Clarity 7s ease-in-out forwards;
-          animation: yellow0Clarity 7s cubic-bezier(0.39, 0.575, 0.565, 1)
+          animation: yellowOneClarity 7s cubic-bezier(0.39, 0.575, 0.565, 1)
             forwards;
           // transform: translate(-50%, -50%) scale(1);
         }
@@ -351,8 +394,8 @@ export default {
         // }
         // @each $color in red, green, blue, white, yellow {
         @each $color in red, green, blue, white {
-          &.#{"" + $color}-#{0}-animate {
-            animation: #{$color}#{0}Clarity 3s ease-in-out forwards;
+          &.#{"" + $color}-one-animate {
+            animation: #{$color}OneClarity 3s ease-in-out forwards;
             // transform: translate(-50%, -50%) scale(1);
           }
         }
@@ -417,7 +460,7 @@ export default {
     width: 100%;
     height: 100%;
     display: none;
-    z-index: 10;
+    z-index: 1000;
     background-color: #fff;
     &.animate {
       display: block;

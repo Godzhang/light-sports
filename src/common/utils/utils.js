@@ -77,3 +77,12 @@ export const once = (el, eventName, eventFn) => {
   };
   el.addEventListener(eventName, fn);
 };
+
+export const formatUrl = (url, param = {}) => {
+  const paramStr =
+    Object.keys(param)
+      .map(key => `${key}=${String(param[key])}`)
+      .join("&") || "";
+  const jointer = url.includes("?") ? "&" : "?";
+  return url + jointer + paramStr;
+};

@@ -10,14 +10,6 @@ const erweimaTop = 45.3 * vw;
 const erweimaLeft = 77.07 * vw;
 const erweimaWidth = 5.47 * vw;
 const erweimaHeight = 6.13 * vw;
-// const erweimaTop = 76.5 * vw;
-// const erweimaLeft = 47 * vw;
-// const greenErweimaTop = 1.5 * vw;
-// const greenErweimaLeft = 49.33 * vw;
-// const whiteErweimaTop = 77.5 * vw;
-// const whiteErweimaLeft = 50 * vw;
-// const erweimaWidth = 12.27 * vw;
-// const erweimaHeight = 16 * vw;
 
 let erweima;
 let box;
@@ -74,10 +66,10 @@ const drawText = (context, type, index) => {
   const { value, fontSize, disRatio, textTop, textLeft } = altasInfos[type][
     index
   ] || {
-    fontSize: 30,
+    fontSize: 36,
     value: "标题",
     disRatio: 5.5 * vw,
-    textTop: 13.5 * vw,
+    textTop: 18 * vw,
     textLeft: 80 * vw
   };
 
@@ -85,6 +77,7 @@ const drawText = (context, type, index) => {
   context.fillStyle = "#fff";
   context.strokeStyle = "#000";
   context.textAlign = "center";
+  context.textBaseline = "middle";
   for (let i = 0; i < value.length; i++) {
     let top = textTop + i * disRatio;
     context.fillText(value[i], textLeft, top);

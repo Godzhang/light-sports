@@ -1,5 +1,6 @@
 <template>
   <div :class="['vote-result', voteDisplay]">
+    <div class="vote-mask" @click="store.setVoteVisible(false)"></div>
     <div class="container">
       <div class="list">
         <VoteSwiper v-for="theme in themes" :key="theme" :theme="theme" />
@@ -18,15 +19,15 @@ export default {
   data() {
     return {
       themes,
-      voteDisplay: "",
+      voteDisplay: ""
     };
   },
   watch: {
     "store.showVote"(isShow) {
       this.voteDisplay = isShow ? "show" : "hide";
-    },
+    }
   },
-  components: { VoteSwiper },
+  components: { VoteSwiper }
 };
 </script>
 <style lang="scss" scoped>
@@ -60,9 +61,16 @@ export default {
   left: 0;
   width: 100%;
   height: 100%;
-  // transform: translateY(100%);
-  background-color: rgba(0, 0, 0, 0.5);
+  transform: translateY(100%);
   z-index: 105;
+  .vote-mask {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+  }
   &.show {
     animation: voteShow 0.2s linear forwards;
   }
@@ -72,10 +80,10 @@ export default {
   .container {
     box-sizing: border-box;
     position: absolute;
-    top: 3vh;
+    top: 15vh;
     left: 0;
     width: 100%;
-    height: 97vh;
+    height: 85vh;
     padding: 9vw 3vw;
     background: #e2e4e9;
     overflow: auto;
@@ -87,7 +95,7 @@ export default {
   }
   .return-btn {
     position: absolute;
-    top: 1.5vh;
+    top: 14vh;
     right: 0;
     width: 20vw;
     height: 10vw;

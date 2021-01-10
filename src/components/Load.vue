@@ -1,12 +1,16 @@
 <template>
   <div class="load" ref="load">
     <div class="round"></div>
+    <div class="tip">
+      施主莫急，调色中...
+    </div>
   </div>
 </template>
 <script>
 import Velocity from "velocity-animate";
 import { themes } from "@/common/global/global";
 import { flattenAtlas } from "@/common/global/atlas";
+import { isWeixin } from "@/common/utils/sniffer";
 
 export default {
   inject: ["store"],
@@ -14,9 +18,32 @@ export default {
     return {};
   },
   mounted() {
+    this.playEntryMusic();
     this.preloadImages();
   },
   methods: {
+    playEntryMusic() {
+      if (isWeixin) {
+        document.addEventListener("DOMContentLoaded", () => {
+          const audioAutoPlay = () => {
+            document.addEventListener("WeixinJSBridgeReady", () => {
+              this.$audio_bg.playEntry();
+            });
+          };
+          audioAutoPlay();
+        });
+      } else {
+        this.$audio_bg.playEntry();
+        // let myEvent = new Event("play");
+        // document.addEventListener("play", () => {
+        // });
+        // if (window.dispatchEvent) {
+        //   window.dispatchEvent(myEvent);
+        // } else {
+        //   window.fireEvent(myEvent);
+        // }
+      }
+    },
     preloadImages() {
       const load = this.$refs.load;
       const loadReqs = flattenAtlas[this.store.colorType].map(url => {
@@ -69,6 +96,15 @@ export default {
     border-radius: 50%;
     box-shadow: 0 0 20px 40px #4e5158;
     animation: roundExpand 1.5s linear infinite;
+  }
+  .tip {
+    position: absolute;
+    bottom: 30vw;
+    left: 0;
+    width: 100%;
+    font-size: 16px;
+    color: #fff;
+    text-align: center;
   }
 }
 </style>

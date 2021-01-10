@@ -52,32 +52,55 @@ export const greenAtlas = [
     require("../../assets/atlas/green/3/5.jpg")
   ]
 ];
+// export const blueAtlas = [
+//   [
+//     require("../../assets/atlas/blue/1/1.jpg"),
+//     require("../../assets/atlas/blue/1/2.jpg"),
+//     require("../../assets/atlas/blue/1/3.jpg")
+//   ],
+//   [
+//     require("../../assets/atlas/blue/2/1.jpg"),
+//     require("../../assets/atlas/blue/2/2.jpg"),
+//     require("../../assets/atlas/blue/2/3.jpg"),
+//     require("../../assets/atlas/blue/2/4.jpg")
+//   ],
+//   [
+//     require("../../assets/atlas/blue/3/1.jpg"),
+//     require("../../assets/atlas/blue/3/2.jpg"),
+//     require("../../assets/atlas/blue/3/3.jpg")
+//   ],
+//   [
+//     require("../../assets/atlas/blue/4/1.jpg"),
+//     require("../../assets/atlas/blue/4/2.jpg")
+//   ],
+//   [
+//     require("../../assets/atlas/blue/5/1.jpg"),
+//     require("../../assets/atlas/blue/5/2.jpg"),
+//     require("../../assets/atlas/blue/5/3.jpg"),
+//     require("../../assets/atlas/blue/5/4.jpg")
+//   ]
+// ];
 export const blueAtlas = [
   [
     require("../../assets/atlas/blue/1/1.jpg"),
     require("../../assets/atlas/blue/1/2.jpg"),
-    require("../../assets/atlas/blue/1/3.jpg")
+    require("../../assets/atlas/blue/1/3.jpg"),
+    require("../../assets/atlas/blue/1/4.jpg")
   ],
   [
     require("../../assets/atlas/blue/2/1.jpg"),
     require("../../assets/atlas/blue/2/2.jpg"),
-    require("../../assets/atlas/blue/2/3.jpg"),
-    require("../../assets/atlas/blue/2/4.jpg")
+    require("../../assets/atlas/blue/2/3.jpg")
   ],
   [
     require("../../assets/atlas/blue/3/1.jpg"),
-    require("../../assets/atlas/blue/3/2.jpg"),
-    require("../../assets/atlas/blue/3/3.jpg")
+    require("../../assets/atlas/blue/3/2.jpg")
   ],
   [
     require("../../assets/atlas/blue/4/1.jpg"),
-    require("../../assets/atlas/blue/4/2.jpg")
-  ],
-  [
-    require("../../assets/atlas/blue/5/1.jpg"),
-    require("../../assets/atlas/blue/5/2.jpg"),
-    require("../../assets/atlas/blue/5/3.jpg"),
-    require("../../assets/atlas/blue/5/4.jpg")
+    require("../../assets/atlas/blue/4/2.jpg"),
+    require("../../assets/atlas/blue/4/3.jpg"),
+    require("../../assets/atlas/blue/4/4.jpg")
   ]
 ];
 export const whiteAtlas = [
@@ -115,6 +138,11 @@ export const yellowAtlas = [
     require("../../assets/atlas/yellow/1/3.jpg"),
     require("../../assets/atlas/yellow/1/4.jpg"),
     require("../../assets/atlas/yellow/1/5.jpg")
+  ],
+  [
+    require("../../assets/atlas/yellow/2/1.jpg"),
+    require("../../assets/atlas/yellow/2/2.jpg"),
+    require("../../assets/atlas/yellow/2/3.jpg")
   ]
 ];
 
@@ -176,7 +204,12 @@ export const whiteAtlasCover = whiteAtlas.map((item, i) => {
   }
   return item[item.length - 1];
 });
-export const yellowAtlasCover = yellowAtlas.map(item => item[0]);
+export const yellowAtlasCover = yellowAtlas.map((item, i) => {
+  if (i === 0) {
+    return item[0];
+  }
+  return item[item.length - 1];
+});
 
 export const altasCover = {
   red: redAtlasCover,
@@ -198,8 +231,8 @@ export const atlasTitle = {
   ],
   green: ["拥抱绿水青山", "绿茵场恢复生机", "绿茵场上怎么能少了小朋友？"],
   blue: [
-    "再见迭戈 蓝色永恒",
-    "老将VS新秀",
+    // "再见迭戈 蓝色永恒",
+    "老将 VS 新秀",
     "蓝色风暴",
     "新世界纪录！",
     "我们也有一片蓝色天地"
@@ -211,7 +244,7 @@ export const atlasTitle = {
     "因为疫情\r\n这一年的体育比赛有些不一样......",
     "但这不能阻挡我们在冰上起舞"
   ],
-  yellow: ["科比骤逝 巨星陨落"]
+  yellow: ["科比骤逝 巨星陨落", "迭戈永恒"]
 };
 
 export const atlasDesc = {
@@ -230,34 +263,38 @@ export const atlasDesc = {
     `足球、篮球、抖空竹、跳绳......体育活动丰富多样。\r\n我爱体育课！`
   ],
   blue: [
-    "",
+    // "",
     "澳网赛场上，焦科维奇成就“八冠王”\r\n21岁的小将克宁斩获女单桂冠。",
     "中超大战中，江苏苏宁队夺得队史首个联赛冠军。",
     "全国游泳冠军赛暨东京奥运会达标赛中，男女4X100米混合泳接力新世界纪录诞生。",
     "做一条鱼吧！感受水中的乐趣，无论你在泳池中，还是大海里。"
   ],
   white: [
-    "北京冬奥会所有竞赛场馆全面完工",
+    "北京冬奥会所有竞赛场馆全面完工。",
     "这个冬天你行动了吗？",
     "1月，第三届青冬奥会在瑞士洛桑举行。",
     "",
     "中国杯世界花样滑冰大奖赛在重庆举行。"
   ],
-  yellow: [""]
+  yellow: ["", "马拉多纳的世界没有尽头。"]
 };
 
 export const atlasCoverText = {
   red: [
-    `“小红人儿”来啦`,
+    // `“小红人儿”来啦`,
+    `小红人儿来啦`,
     "太极拳申遗成功",
     "国球威武",
-    `全力以“复”`,
+    // `全力以“复”`,
+    `全力以复`,
     "女篮精神出圈",
     "红土封王",
-    `“红”霸天下`
+    // `“红”霸天下`
+    `红霸天下`
   ],
-  green: ["拥抱绿水青山", "绿茵场恢复生机", "我爱体育课！"],
-  blue: ["再见迭戈", "澳网", "蓝色风暴", "新世界纪录！", "水中乐趣"],
+  green: ["拥抱绿水青山", "绿茵场恢复生机", "我爱体育课"],
+  // blue: ["再见迭戈", "澳网", "蓝色风暴", "新世界纪录！", "水中乐趣"],
+  blue: ["澳网", "蓝色风暴", "新世界纪录", "水中乐趣"],
   white: [
     "未来可期",
     `三亿人上冰雪`,
@@ -265,24 +302,36 @@ export const atlasCoverText = {
     "疫情下的体育赛场",
     "花样滑冰大奖赛"
   ],
-  yellow: ["科比骤逝"]
+  yellow: ["科比骤逝", "迭戈永恒"]
 };
 
-export const altasInfos = (atlasTitle => {
+const topPosByLength = {
+  2: 24,
+  3: 22,
+  4: 20,
+  5: 18,
+  6: 15,
+  7: 15,
+  8: 14
+};
+
+export const altasInfos = (atlasCoverText => {
   const reuslt = [];
-  for (let key in atlasTitle) {
-    reuslt[key] = atlasTitle[key].map(item => {
+  for (let key in atlasCoverText) {
+    reuslt[key] = atlasCoverText[key].map(item => {
+      const len = item.length;
       let fontSize = 36;
       let disRatio = 5.5 * vw;
-      let textTop = 13.5 * vw;
-      if (item.length >= 5 && item.length < 8) {
-        fontSize = 24;
-        disRatio = 3.7 * vw;
-        textTop = 12 * vw;
-      } else if (item.length >= 8) {
-        fontSize = 18;
-        disRatio = 2.5 * vw;
-        textTop = 11.5 * vw;
+      let textTop = topPosByLength[len] * vw;
+      if (len === 6) {
+        fontSize = 32;
+        disRatio = 5 * vw;
+      } else if (len === 7) {
+        fontSize = 30;
+        disRatio = 4.5 * vw;
+      } else if (len === 8) {
+        fontSize = 28;
+        disRatio = 4 * vw;
       }
       return {
         value: item,
@@ -294,4 +343,4 @@ export const altasInfos = (atlasTitle => {
     });
   }
   return reuslt;
-})(atlasTitle);
+})(atlasCoverText);

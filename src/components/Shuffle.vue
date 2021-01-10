@@ -19,7 +19,8 @@
       </div>
     </div>
     <div :class="['show', type]">
-      <swiper ref="mySwiper" :options="swiperOptions" @click="showDetail">
+      <!-- <swiper ref="mySwiper" :options="swiperOptions" @click="showDetail"> -->
+      <swiper ref="mySwiper" :options="swiperOptions">
         <swiper-slide v-for="(image, index) in swiperAtlas" :key="index">
           <div class="image-box" ref="imageBox">
             <img class="image" :src="image" alt />
@@ -27,6 +28,9 @@
         </swiper-slide>
       </swiper>
       <div class="swiper-pagination" slot="pagination"></div>
+    </div>
+    <div class="tip">
+      <img class="tip-pic" src="../assets/shuffle/tip.png" alt="" />
     </div>
   </div>
 </template>
@@ -46,53 +50,75 @@ export default {
       images: [],
       swiperAtlas: [],
       swiperOptions: {
-        loop: false,
+        loop: true,
         speed: 400,
         effect: "myCustomTransition",
         pagination: {
-          el: ".swiper-pagination",
+          el: ".swiper-pagination"
         },
         virtualTranslate: true,
         watchSlidesProgress: true,
         on: {
-          setTranslate: (translate) => {
+          setTranslate: translate => {
             this.$nextTick(() => {
               this.setTranslate(this.$refs.mySwiper.$swiper, translate);
             });
-          },
-        },
-      },
+          }
+        }
+      }
     };
   },
   mounted() {
-    this.showPage();
     this.initType(this.store.colorType);
-    this.swiper.slideNext(0);
+    this.bindEvent();
 
-    this.$watch("store.step", (step) => {
+    this.$watch("store.step", (step, prevStep) => {
+      if (step === 3 && prevStep === 2) {
+        this.swiper.slideToLoop(0, 0);
+      }
       if (step === 4) {
-        Velocity(
-          this.$refs.shuffle,
-          { translateY: "0%", opacity: 1 },
-          { duration: 0, mobileHA: false }
-        );
+        this.showPage();
+        // Velocity(
+        //   this.$refs.shuffle,
+        //   { translateY: "0%", opacity: 1 },
+        //   { duration: 0, mobileHA: false }
+        // );
       }
     });
-    this.$watch("store.colorType", (type) => {
+    this.$watch("store.colorType", type => {
       this.initType(type);
     });
   },
   computed: {
     swiper() {
       return this.$refs.mySwiper.$swiper;
-    },
+    }
   },
   watch: {
     async images(images) {
       this.swiperAtlas = await getCompositionUrl(images, this.type);
-    },
+    }
   },
   methods: {
+    bindEvent() {
+      const swiper = this.swiper;
+      let startTime = 0;
+      let startX = 0;
+      let moveX = 0;
+      swiper.on("touchStart", e => {
+        startTime = Date.now();
+        startX = e.touches[0].clientX;
+      });
+      swiper.on("touchMove", e => {
+        moveX = e.touches[0].clientX - startX;
+      });
+      swiper.on("touchEnd", () => {
+        if (Date.now() - startTime <= 300 && moveX === 0) {
+          this.showDetail();
+        }
+        moveX = 0;
+      });
+    },
     initType(type) {
       this.type = type;
       this.images = altasCover[type];
@@ -117,7 +143,7 @@ export default {
       shuffle.style.transform = `translateY(-100%)`;
       shuffle.style.zIndex = prevzIndex;
       if (pageNum === 3) {
-        this.$audio.play(this.type);
+        this.$audio_bg.play(this.type);
       }
     },
     setTranslate(swiper, translate) {
@@ -136,7 +162,7 @@ export default {
         }
         TweenMax.set(slide, {
           x,
-          y,
+          y
         });
         const clip = (val, min, max) => Math.max(min, Math.min(val, max));
         const ZOOM_FACTOR = 0.8; // 淡入 scale 0.4, 淡出 scale 0.4
@@ -154,12 +180,12 @@ export default {
     },
     vote() {
       this.store.setVoteNum();
-    },
+    }
   },
   components: {
     Swiper,
-    SwiperSlide,
-  },
+    SwiperSlide
+  }
 };
 </script>
 <style lang="scss" scoped>
@@ -245,7 +271,7 @@ export default {
         content: "";
         position: absolute;
         top: 0;
-        left: 0;
+        left: 1px;
         width: 100%;
         height: 100%;
         transform: skew($vote-skew-deg);
@@ -346,6 +372,16 @@ export default {
       top: 50%;
       left: 50%;
       transform: translate(-50%, -50%);
+      width: 100%;
+    }
+  }
+  .tip {
+    position: absolute;
+    left: 50%;
+    bottom: 35vw;
+    transform: translateX(-50%);
+    width: 30vw;
+    .tip-pic {
       width: 100%;
     }
   }

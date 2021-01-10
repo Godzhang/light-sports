@@ -1,11 +1,11 @@
 <template>
   <div class="test">
-    <div class="lamp">
+    <!-- <div class="lamp">
       <img src="../assets/cover/green-lamp.png" alt />
       <div class="mask"></div>
-    </div>
-    <!-- <img :src="src" alt />
-    <canvas id="canvas" ref="canvas"></canvas>-->
+    </div>-->
+    <img :src="src" alt />
+    <!-- <canvas id="canvas" ref="canvas"></canvas> -->
   </div>
   <!-- <div class="test" ref="test">
     <img src="../assets/atlas/red/1/4-1.jpg" alt />
@@ -70,15 +70,15 @@ $lamp-height: 130vw;
   height: 100%;
   overflow: hidden;
   background-color: #16430d;
-  // img {
-  //   position: absolute;
-  //   top: 50%;
-  //   left: 50%;
-  //   transform: translate(-50%, -50%);
-  //   width: 91vw;
-  //   height: 52vw;
-  //   box-shadow: 0 0 10px 2px rgba($color: #000000, $alpha: 0.5);
-  // }
+  img {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 91vw;
+    height: 52vw;
+    box-shadow: 0 0 10px 2px rgba($color: #000000, $alpha: 0.5);
+  }
   #canvas {
     position: absolute;
     top: 50%;

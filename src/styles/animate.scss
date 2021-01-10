@@ -1,34 +1,18 @@
 @import "./mixin.scss";
 
 // 红色 放大图 清晰化动画
-@include narrowkeyframes("red0Clarity", 148%, -122%, 50);
-// @include narrowkeyframes("red1Clarity", -50%, 115%, 18);
-// @include narrowkeyframes("red2Clarity", 0%, -50%, 20);
-// @include narrowkeyframes("red3Clarity", -70%, -220%, 15);
-// @include narrowkeyframes("red4Clarity", -45%, -140%, 20);
-// @include narrowkeyframes("red5Clarity", -50%, 0%, 20);
-// @include narrowkeyframes("red6Clarity", -315%, -410%, 15);
-
+@include narrowkeyframes("redOneClarity", 148%, -122%, 50);
 // 白色
-@include narrowkeyframes("white0Clarity", -50%, -420%, 40);
-// @include narrowkeyframes("white1Clarity", -55%, -155%, 20);
-// @include narrowkeyframes("white2Clarity", -200%, 10%, 15);
-// @include narrowkeyframes("white3Clarity", -50%, -50%, 20);
-// @include narrowkeyframes("white4Clarity", -130%, -50%, 20);
+@include narrowkeyframes("whiteOneClarity", -50%, -420%, 40);
 
 // 绿色
-@include narrowkeyframes("green0Clarity", -50%, -50%, 40);
-// @include narrowkeyframes("green1Clarity", -10%, -200%, 20);
-// @include narrowkeyframes("green2Clarity", -50%, 40%, 20);
+@include narrowkeyframes("greenOneClarity", -50%, -50%, 40);
 
 // 蓝色
-@include narrowkeyframes("blue0Clarity", 1224%, 94%, 40);
-// @include narrowkeyframes("blue1Clarity", -35%, -210%, 20);
-// @include narrowkeyframes("blue2Clarity", -50%, -50%, 15);
-// @include narrowkeyframes("blue3Clarity", -20%, -400%, 15);
+@include narrowkeyframes("blueOneClarity", -110%, -135%, 40);
 
 // 黄色
-@include narrowkeyframes("yellow0Clarity", -50%, 90%, 40);
+@include narrowkeyframes("yellowOneClarity", -50%, 90%, 40);
 
 // 红色 最后一张图缩小定位动画
 @keyframes redFirstNarrow {

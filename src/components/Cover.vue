@@ -22,6 +22,9 @@
     <div class="note" ref="note">
       <img class="text-pic" src="../assets/cover/color-sport.png" />
     </div>
+    <div class="logo" ref="logo">
+      <img class="logo-pic" src="../assets/cover/logo.png" />
+    </div>
     <div class="flash" ref="flash"></div>
     <a
       :class="['vote-entry', store.colorType]"
@@ -37,7 +40,7 @@ import Velocity from "velocity-animate";
 import {
   gradientColors,
   gradientRgbColors,
-  coverBgColors,
+  coverBgColors
 } from "@/common/global/colors.js";
 import {
   hexToRgba,
@@ -45,7 +48,7 @@ import {
   getMixColorRgbStr,
   sleep,
   clip,
-  once,
+  once
 } from "@/common/utils/utils.js";
 import { atlas, flattenAtlas } from "@/common/global/atlas";
 import { themes } from "@/common/global/global";
@@ -55,7 +58,7 @@ const documentHeight = document.body.clientHeight;
 const vw = documentWidth / 100;
 
 const lamps = {};
-themes.forEach((color) => {
+themes.forEach(color => {
   lamps[color] = require(`../assets/cover/${color}-lamp.png`);
 });
 
@@ -91,7 +94,7 @@ export default {
               this.calcSlidePos();
             });
           },
-          progress: (progress) => {
+          progress: progress => {
             this.$nextTick(() => {
               this.calcSlidePos(progress);
               this.currProgress = progress;
@@ -127,9 +130,9 @@ export default {
           },
           slidePrevTransitionStart: () => {
             this.moveDir = "left";
-          },
-        },
-      },
+          }
+        }
+      }
     };
   },
   created() {
@@ -158,7 +161,7 @@ export default {
     },
     theme() {
       return this.store.colorType;
-    },
+    }
   },
   watch: {
     theme(theme) {
@@ -166,9 +169,14 @@ export default {
       const coverBgColor = coverBg.style.backgroundColor.slice(4, -1);
       const bgColor = hexToRgba(coverBgColors[theme]).rgbStr;
       if (coverBgColor !== bgColor) {
-        Velocity(coverBg, { backgroundColor: coverBgColors[theme] });
+        // Velocity(
+        //   coverBg,
+        //   { backgroundColor: coverBgColors[theme] },
+        //   { duration: 0 }
+        // );
+        coverBg.style.backgroundColor = coverBgColors[theme];
       }
-    },
+    }
   },
   methods: {
     init() {
@@ -179,7 +187,7 @@ export default {
     bindAudio() {
       const lampBox = this.$refs.lampBox;
       once(lampBox, "touchstart", () => {
-        this.$audio.playMuted();
+        this.$audio_bg.playMuted();
       });
     },
     bindSwiper() {
@@ -187,12 +195,12 @@ export default {
       let startX = 0;
       let startTime = 0;
 
-      swiperDom.addEventListener("touchstart", (e) => {
+      swiperDom.addEventListener("touchstart", e => {
         this.isSliding = true;
         startX = e.touches[0].clientX;
         startTime = Date.now();
       });
-      swiperDom.addEventListener("touchmove", (e) => {
+      swiperDom.addEventListener("touchmove", e => {
         if (!this.isSliding) return;
         this.moveX = Math.abs(e.touches[0].clientX - startX);
         if (e.touches[0].clientX - startX < 0) {
@@ -212,10 +220,15 @@ export default {
       cover.style.transform = `translateY(0)`;
     },
     async showParts() {
-      const { note, voteEntry } = this.$refs;
+      const { note, logo, voteEntry } = this.$refs;
       this.showSlide();
       Velocity(
         note,
+        { opacity: 1 },
+        { duration: 800, delay: 400, mobileHA: false }
+      );
+      Velocity(
+        logo,
         { opacity: 1 },
         { duration: 800, delay: 400, mobileHA: false }
       );
@@ -223,7 +236,7 @@ export default {
         voteEntry,
         {
           translateX: ["0%", "-100%"],
-          opacity: 1,
+          opacity: 1
         },
         { duration: 800, delay: 800, mobileHA: false }
       );
@@ -256,10 +269,10 @@ export default {
       Velocity(lampLight, { opacity: 0 }, { duration: 300, mobileHA: false });
       await Velocity(lamp, { opacity: 0 }, { duration: 300, mobileHA: false });
       this.hidePage();
-      this.$audio.play(this.theme);
+      this.$audio_bg.play(this.theme);
     },
     async showGradient(gradient, lamp, lampLight) {
-      return new Promise((resolve) => {
+      return new Promise(resolve => {
         let percentage = 0;
         let timer = null;
         const fn = () => {
@@ -284,11 +297,21 @@ export default {
               { opacity: 0 },
               { duration: 500, mobileHA: false }
             );
+            Velocity(
+              this.$refs.logo,
+              { opacity: 0 },
+              { duration: 500, mobileHA: false }
+            );
+            setTimeout(() => {
+              Velocity(this.$refs.voteEntry, "finish");
+              Velocity(this.$refs.note, "finish");
+              Velocity(this.$refs.logo, "finish");
+            }, 1500);
           }
           lamp.style.opacity = 1 - percentage;
-          gradient.style.boxShadow = `0 0 ${120}px ${
-            (percentage * documentHeight) / 1.2
-          }px rgba(${gradientRgbColors[this.theme]}, 1)`;
+          gradient.style.boxShadow = `0 0 ${120}px ${(percentage *
+            documentHeight) /
+            1.2}px rgba(${gradientRgbColors[this.theme]}, 1)`;
 
           timer = requestAnimationFrame(fn);
         };
@@ -367,8 +390,8 @@ export default {
           activeIndex - 2,
           activeIndex - 1,
           activeIndex + 1,
-          activeIndex + 2,
-        ].filter((i) => i !== prevIndex);
+          activeIndex + 2
+        ].filter(i => i !== prevIndex);
         const random = Math.floor(Math.random() * arr.length);
         const index = arr[random];
         const slide = slides[index];
@@ -394,7 +417,7 @@ export default {
       Velocity(
         cover,
         { opacity: 0 },
-        { duration: 3000, easing: "ease-out" }
+        { duration: 2500, easing: "ease-out" }
       ).then(() => {
         cover.style.transform = `translateY(-100%)`;
       });
@@ -417,7 +440,8 @@ export default {
       this.isTrigger = false;
     },
     resetPage() {
-      this.$refs.note.style.opacity = 1;
+      // this.$refs.note.style.opacity = 0;
+      // this.$refs.logo.style.opacity = 0;
       this.$refs.cover.style.opacity = 1;
       this.$refs.cover.style.transform = `translateY(0)`;
     },
@@ -435,14 +459,14 @@ export default {
       const currentSlide = this.swiper.slides[this.swiper.activeIndex];
       const parent = currentSlide.parentNode;
       const childs = Array.from(parent.childNodes);
-      const index = childs.findIndex((child) => child === currentSlide);
+      const index = childs.findIndex(child => child === currentSlide);
 
       childs[index - 2].style.opacity = 1;
       childs[index - 1].style.opacity = 1;
       childs[index + 1].style.opacity = 1;
       childs[index + 2].style.opacity = 1;
-    },
-  },
+    }
+  }
 };
 </script>
 <style lang="scss" scoped>
@@ -539,12 +563,21 @@ $lamp-height: 130vw;
   }
   .note {
     position: absolute;
-    bottom: 15vw;
+    bottom: 25vw;
     left: 50%;
     transform: translateX(-50%);
     width: 65vw;
     opacity: 0;
     .text-pic {
+      width: 100%;
+    }
+  }
+  .logo {
+    position: absolute;
+    bottom: 5vw;
+    right: 5vw;
+    width: 32vw;
+    .logo-pic {
       width: 100%;
     }
   }

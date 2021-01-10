@@ -20,9 +20,9 @@ const colorToNum = {
   green: 2,
   blue: 3,
   white: 4,
-  yellow: 5,
+  yellow: 5
 };
-const numToColor = ((obj) => {
+const numToColor = (obj => {
   const result = {};
   for (let key in obj) {
     result[`count${obj[key]}`] = key;
@@ -34,7 +34,7 @@ export default {
   name: "Home",
   provide() {
     return {
-      store: this,
+      store: this
     };
   },
   data() {
@@ -49,7 +49,7 @@ export default {
         green: 0,
         blue: 0,
         white: 0,
-        yellow: 0,
+        yellow: 0
       },
       // 对应颜色投票状态，一个颜色只能投一次
       voteStatus: {
@@ -57,12 +57,12 @@ export default {
         green: false,
         blue: false,
         white: false,
-        yellow: false,
-      },
+        yellow: false
+      }
     };
   },
   created() {
-    axios.get("/savc?id=6").then((res) => {
+    axios.get("/savc?id=6").then(res => {
       const { data } = res;
       if (data.code === 200) {
         for (let key in data) {
@@ -90,22 +90,23 @@ export default {
       this.showVote = bol;
     },
     setVoteNum() {
-      axios.post(`/savc?id=${colorToNum[this.colorType]}`).then((res) => {
+      axios.post(`/savc?id=${colorToNum[this.colorType]}`).then(res => {
         const { data } = res;
         if (data.code === 200) {
           this.voteNums[this.colorType] = data.count;
           this.voteStatus[this.colorType] = true;
+          this.setVoteVisible(true);
         }
       });
-    },
+    }
   },
   components: {
     Load,
     Cover,
     Play,
     Shuffle,
-    VoteResult,
-  },
+    VoteResult
+  }
 };
 </script>
 <style lang="scss" scoped>
