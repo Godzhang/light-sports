@@ -1,6 +1,9 @@
 <template>
   <div :class="['item', theme]">
-    <div class="image-box" :style="{ right: theme === 'yellow' ? '-3vw' : '2vw' }">
+    <div
+      class="image-box"
+      :style="{ right: theme === 'yellow' ? '-2vw' : '2vw' }"
+    >
       <swiper ref="mySwiper" :options="swiperOptions">
         <swiper-slide v-for="(url, i) in altasCover[theme]" :key="i">
           <div class="image">
@@ -10,9 +13,7 @@
       </swiper>
     </div>
     <span class="atlas-name" :style="getAtlasStyle()">
-      {{
-      getAtlasName()
-      }}
+      {{ getAtlasName() }}
     </span>
     <span class="vote-number">
       <span class="num">{{ store.voteNums[theme] }} 票</span>
@@ -26,7 +27,7 @@ import { vw } from "@/common/global/global";
 export default {
   inject: ["store"],
   props: {
-    theme: String
+    theme: String,
   },
   data() {
     return {
@@ -38,13 +39,15 @@ export default {
         green: 0,
         blue: 0,
         white: 0,
-        yellow: 0
+        yellow: 0,
       },
       swiperOptions: {
         initialSlide: 0,
         watchSlidesProgress: true, // 查看slide的progress
         resistanceRatio: 0, // 禁止边缘移动
-        loop: this.theme !== "yellow",
+        loop: true,
+        // loopAdditionalSlides: 1,
+        // loop: this.theme !== "yellow",
         // loopedSlides: 5,
         watchOverflow: true,
         // slidesPerView: 5,
@@ -52,71 +55,61 @@ export default {
         on: {
           setTranslate: () => {
             // this.$nextTick(() => {
-            // const swiper = this.swiper;
-            // const slides = swiper.slides;
-            // for (let i = 0; i < slides.length; i++) {
-            //   const slide = slides.eq(i);
-            //   const slideProgress = slides[i].progress;
-            //   let modify = 1;
-            //   if (Math.abs(slideProgress) > 1) {
-            //     modify = (Math.abs(slideProgress) - 1) * 0.3 + 1;
-            //   }
-            //   const translate = slideProgress * modify * 120 + "px";
-            //   const scale = 1 - Math.abs(slideProgress) / 5;
-            //   const zIndex = 999 - Math.abs(Math.round(10 * slideProgress));
-            //   slide.transform(
-            //     "translateX(" + -translate + ") scale(" + scale + ")"
-            //   );
-            //   slide.css("zIndex", zIndex);
-            //   slide.css("opacity", 1);
-            //   if (Math.abs(slideProgress) > 3) {
-            //     slide.css("opacity", 0);
-            //   }
-            // }
-            // const swiper = this.swiper;
-            // const slides = swiper.slides;
-            // const offsetAfter = 28.2 * vw * 0.92; // 每个slide的位移值
+            //   const swiper = this.swiper;
+            //   const slides = swiper.slides;
+            //   const len = slides.length;
+            //   const offsetAfter = 28.2 * vw * 0.92; // 每个slide的位移值
+            //   const positiveOffset = 28.2 * vw * 1.07;
 
-            // for (let i = 0; i < slides.length; i++) {
-            //   let slide = slides.eq(i);
-            //   let progress = slides[i].progress;
-            //   // console.log(slide[0]);
-            //   // console.log(progress);
-            //   // console.log("---------------");
-            //   slide.css("zIndex", 100 - i);
+            //   for (let i = 0; i < len; i++) {
+            //     let slide = slides.eq(i);
+            //     let progress = slides[i].progress;
+            //     // console.log(slide[0]);
+            //     // console.log(progress);
+            //     // console.log("---------------");
+            //     slide.css("zIndex", 100 - Math.abs(progress));
 
-            //   if (progress <= 0) {
-            //     // 左边slide位移
-            //     slide.transform(
-            //       `translate3d(${progress * offsetAfter}px, 0, 0) scale(${1 -
-            //         Math.abs(progress) / 20})`
-            //     );
-            //     slide.css("opacity", progress + 3); // 最左边slide透明
-            //   }
+            //     if (progress > 0 && progress <= 1) {
+            //       slide.transform(`translate3d(0, 0, 0) scale(1)`);
+            //       slide.css("zIndex", 101);
+            //       slide.css("opacity", 1);
+            //     } else if (progress >= 6) {
+            //       slide.transform(
+            //         `translate3d(${
+            //           (progress + 3 * 0.08) * 28.2 * vw
+            //         }px, 0, 0) scale(${1 - Math.abs(progress) / 20})`
+            //       );
+            //     } else if (progress <= 0) {
+            //       slide.transform(
+            //         `translate3d(${progress * offsetAfter}px, 0, 0) scale(${
+            //           1 - Math.abs(progress) / 20
+            //         })`
+            //       );
+            //       slide.css("opacity", progress + 3); // 最左边slide透明
+            //     }
 
-            //   if (progress > 0) {
-            //     slide.css("opacity", 1 - progress); // 左边slide透明
+            //     if (progress > 0) {
+            //       slide.css("opacity", 1 - progress); // 左边slide透明
+            //     }
             //   }
-            // }
             // });
             this.$nextTick(() => {
               const swiper = this.swiper;
               const slides = swiper.slides;
+              const len = slides.length;
               const offsetAfter = 28.2 * vw * 0.92; // 每个slide的位移值
 
-              for (let i = 0; i < slides.length; i++) {
+              for (let i = 0; i < len; i++) {
                 let slide = slides.eq(i);
                 let progress = slides[i].progress;
-                // console.log(slide[0]);
-                // console.log(progress);
-                // console.log("---------------");
                 slide.css("zIndex", 100 - i);
 
                 if (progress <= 0) {
                   // 左边slide位移
                   slide.transform(
-                    `translate3d(${progress * offsetAfter}px, 0, 0) scale(${1 -
-                      Math.abs(progress) / 20})`
+                    `translate3d(${progress * offsetAfter}px, 0, 0) scale(${
+                      1 - Math.abs(progress) / 20
+                    })`
                   );
                   slide.css("opacity", progress + 3); // 最左边slide透明
                 }
@@ -127,7 +120,7 @@ export default {
               }
             });
           },
-          setTransition: transition => {
+          setTransition: (transition) => {
             this.$nextTick(() => {
               const swiper = this.swiper;
               const slides = swiper.slides;
@@ -141,15 +134,15 @@ export default {
             this.$nextTick(() => {
               this.colorIndexMap[this.theme] = this.swiper.realIndex;
             });
-          }
-        }
-      }
+          },
+        },
+      },
     };
   },
   computed: {
     swiper() {
       return this.$refs.mySwiper.$swiper;
-    }
+    },
   },
   methods: {
     getAtlasStyle() {
@@ -157,14 +150,14 @@ export default {
       const len = atlasCoverText[theme][this.colorIndexMap[theme]].length;
       const size = len >= 6 ? "14px" : "16px";
       return {
-        "font-size": size
+        "font-size": size,
       };
     },
     getAtlasName() {
       const theme = this.theme;
       return atlasCoverText[theme][this.colorIndexMap[theme]];
-    }
-  }
+    },
+  },
 };
 </script>
 <style lang="scss" scoped>
@@ -196,6 +189,7 @@ export default {
       transform: translateY(-50%);
       width: 100%;
       height: 100%;
+      // overflow: visible;
     }
     .image {
       box-sizing: border-box;
@@ -253,8 +247,6 @@ export default {
 
   &:nth-child(2n) {
     .image-box {
-      // right: 8vw;
-      // right: 7vw;
       right: 3vw;
     }
     .vote-number {
@@ -267,9 +259,7 @@ export default {
   }
   &:nth-child(2n + 1) {
     .image-box {
-      // left: 10vw;
       left: 6vw;
-      // left: 0;
     }
     .vote-number {
       top: 4vw;

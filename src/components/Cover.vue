@@ -40,7 +40,7 @@ import Velocity from "velocity-animate";
 import {
   gradientColors,
   gradientRgbColors,
-  coverBgColors
+  coverBgColors,
 } from "@/common/global/colors.js";
 import {
   hexToRgba,
@@ -48,7 +48,7 @@ import {
   getMixColorRgbStr,
   sleep,
   clip,
-  once
+  once,
 } from "@/common/utils/utils.js";
 import { atlas, flattenAtlas } from "@/common/global/atlas";
 import { themes } from "@/common/global/global";
@@ -58,7 +58,7 @@ const documentHeight = document.body.clientHeight;
 const vw = documentWidth / 100;
 
 const lamps = {};
-themes.forEach(color => {
+themes.forEach((color) => {
   lamps[color] = require(`../assets/cover/${color}-lamp.png`);
 });
 
@@ -75,15 +75,11 @@ export default {
       isSliding: false,
       isTrigger: false,
       savedActiveIndex: 0,
-      // prevProgress: -1,
-      // currProgress: -1,
-      // slideChange: false,
       moveX: 0,
       moveTime: 0,
       swiperOptions: {
         initialSlide: 0,
         touchRatio: 0.25,
-        // shortSwipes: false,
         watchSlidesProgress: true,
         slidesPerView: 5,
         centeredSlides: true,
@@ -94,7 +90,7 @@ export default {
               this.calcSlidePos();
             });
           },
-          progress: progress => {
+          progress: (progress) => {
             this.$nextTick(() => {
               this.calcSlidePos(progress);
               this.currProgress = progress;
@@ -106,33 +102,16 @@ export default {
                 this.store.setType(themes[this.swiper.realIndex]);
               }
               this.savedActiveIndex = this.swiper.activeIndex;
-              // if (this.slideChange) {
-              //   this.savedActiveIndex = this.swiper.activeIndex;
-              //   this.slideChange = false;
-              // }
-              // console.log(this.prevProgress, this.currProgress);
-              // console.log(this.prevProgress === this.currProgress);
-              // if (this.prevProgress === this.currProgress) {
-              //   this.$refs.coverBg.style.backgroundColor =
-              //     coverBgColors[themes[this.swiper.realIndex]];
-              // } else {
-              //   this.prevProgress = this.currProgress;
-              //   this.savedActiveIndex = this.swiper.activeIndex;
-              // }
             });
           },
-          // slideChange: () => {
-          //   console.log("slide change");
-          //   this.slideChange = true;
-          // },
           slideNextTransitionStart: () => {
             this.moveDir = "right";
           },
           slidePrevTransitionStart: () => {
             this.moveDir = "left";
-          }
-        }
-      }
+          },
+        },
+      },
     };
   },
   created() {
@@ -148,6 +127,7 @@ export default {
         // 如果不是从Load页面进入，需重置页面
         if (prevStep !== 1) {
           this.resetCoverPage();
+          this.$audio_bg.playEntry();
         }
         this.showPage(); // 显示整体页面
         await this.showParts(); // 显示页面各部分
@@ -161,7 +141,7 @@ export default {
     },
     theme() {
       return this.store.colorType;
-    }
+    },
   },
   watch: {
     theme(theme) {
@@ -169,14 +149,9 @@ export default {
       const coverBgColor = coverBg.style.backgroundColor.slice(4, -1);
       const bgColor = hexToRgba(coverBgColors[theme]).rgbStr;
       if (coverBgColor !== bgColor) {
-        // Velocity(
-        //   coverBg,
-        //   { backgroundColor: coverBgColors[theme] },
-        //   { duration: 0 }
-        // );
         coverBg.style.backgroundColor = coverBgColors[theme];
       }
-    }
+    },
   },
   methods: {
     init() {
@@ -195,12 +170,12 @@ export default {
       let startX = 0;
       let startTime = 0;
 
-      swiperDom.addEventListener("touchstart", e => {
+      swiperDom.addEventListener("touchstart", (e) => {
         this.isSliding = true;
         startX = e.touches[0].clientX;
         startTime = Date.now();
       });
-      swiperDom.addEventListener("touchmove", e => {
+      swiperDom.addEventListener("touchmove", (e) => {
         if (!this.isSliding) return;
         this.moveX = Math.abs(e.touches[0].clientX - startX);
         if (e.touches[0].clientX - startX < 0) {
@@ -236,7 +211,7 @@ export default {
         voteEntry,
         {
           translateX: ["0%", "-100%"],
-          opacity: 1
+          opacity: 1,
         },
         { duration: 800, delay: 800, mobileHA: false }
       );
@@ -272,7 +247,7 @@ export default {
       this.$audio_bg.play(this.theme);
     },
     async showGradient(gradient, lamp, lampLight) {
-      return new Promise(resolve => {
+      return new Promise((resolve) => {
         let percentage = 0;
         let timer = null;
         const fn = () => {
@@ -309,9 +284,9 @@ export default {
             }, 1500);
           }
           lamp.style.opacity = 1 - percentage;
-          gradient.style.boxShadow = `0 0 ${120}px ${(percentage *
-            documentHeight) /
-            1.2}px rgba(${gradientRgbColors[this.theme]}, 1)`;
+          gradient.style.boxShadow = `0 0 ${120}px ${
+            (percentage * documentHeight) / 1.2
+          }px rgba(${gradientRgbColors[this.theme]}, 1)`;
 
           timer = requestAnimationFrame(fn);
         };
@@ -348,41 +323,35 @@ export default {
         Velocity(slide, { translateY, scale, zIndex }, { duration: 0 });
       }
     },
-    changeCoverBg(progress) {
-      if (!this.isSliding) return;
-      const { color, nextColor, ratio } = this.getMovingColorsAndRatio(
-        progress
-      );
+    // changeCoverBg(progress) {
+    //   if (!this.isSliding) return;
+    //   const { color, nextColor, ratio } = this.getMovingColorsAndRatio(
+    //     progress
+    //   );
 
-      let mixColor = `rgba(${getMixColorRgbStr(
-        coverBgColors[color],
-        coverBgColors[nextColor],
-        ratio
-      )}, 1)`;
+    //   let mixColor = `rgba(${getMixColorRgbStr(
+    //     coverBgColors[color],
+    //     coverBgColors[nextColor],
+    //     ratio
+    //   )}, 1)`;
 
-      // if (ratio === 1) {
-      //   if (this.moveX <= 150) {
-      //     mixColor = coverBgColors[color];
-      //   }
-      // }
-
-      this.$refs.coverBg.style.backgroundColor = mixColor;
-    },
-    getMovingColorsAndRatio(progress) {
-      const { slides } = this.swiper;
-      const activeIndex = this.savedActiveIndex;
-      const color = slides[activeIndex].dataset.color;
-      let nextColor = "";
-      let ratio = 1;
-      if (this.moveDir === "right") {
-        nextColor = slides[activeIndex + 1].dataset.color;
-        ratio = progress > 0 ? progress : progress + 1;
-      } else {
-        nextColor = slides[activeIndex - 1].dataset.color;
-        ratio = progress < 0 ? Math.abs(progress) : 1 - progress;
-      }
-      return { color, nextColor, ratio };
-    },
+    //   this.$refs.coverBg.style.backgroundColor = mixColor;
+    // },
+    // getMovingColorsAndRatio(progress) {
+    //   const { slides } = this.swiper;
+    //   const activeIndex = this.savedActiveIndex;
+    //   const color = slides[activeIndex].dataset.color;
+    //   let nextColor = "";
+    //   let ratio = 1;
+    //   if (this.moveDir === "right") {
+    //     nextColor = slides[activeIndex + 1].dataset.color;
+    //     ratio = progress > 0 ? progress : progress + 1;
+    //   } else {
+    //     nextColor = slides[activeIndex - 1].dataset.color;
+    //     ratio = progress < 0 ? Math.abs(progress) : 1 - progress;
+    //   }
+    //   return { color, nextColor, ratio };
+    // },
     pollLight() {
       const fn = async (prevIndex = -1) => {
         const { slides, activeIndex } = this.swiper;
@@ -390,8 +359,8 @@ export default {
           activeIndex - 2,
           activeIndex - 1,
           activeIndex + 1,
-          activeIndex + 2
-        ].filter(i => i !== prevIndex);
+          activeIndex + 2,
+        ].filter((i) => i !== prevIndex);
         const random = Math.floor(Math.random() * arr.length);
         const index = arr[random];
         const slide = slides[index];
@@ -459,14 +428,14 @@ export default {
       const currentSlide = this.swiper.slides[this.swiper.activeIndex];
       const parent = currentSlide.parentNode;
       const childs = Array.from(parent.childNodes);
-      const index = childs.findIndex(child => child === currentSlide);
+      const index = childs.findIndex((child) => child === currentSlide);
 
       childs[index - 2].style.opacity = 1;
       childs[index - 1].style.opacity = 1;
       childs[index + 1].style.opacity = 1;
       childs[index + 2].style.opacity = 1;
-    }
-  }
+    },
+  },
 };
 </script>
 <style lang="scss" scoped>

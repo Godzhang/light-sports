@@ -3,6 +3,7 @@
     <div class="vote-mask" @click="store.setVoteVisible(false)"></div>
     <div class="container">
       <div class="list">
+        <!-- <VoteSwiper theme="red" /> -->
         <VoteSwiper v-for="theme in themes" :key="theme" :theme="theme" />
       </div>
     </div>
@@ -19,15 +20,15 @@ export default {
   data() {
     return {
       themes,
-      voteDisplay: ""
+      voteDisplay: "",
     };
   },
   watch: {
     "store.showVote"(isShow) {
       this.voteDisplay = isShow ? "show" : "hide";
-    }
+    },
   },
-  components: { VoteSwiper }
+  components: { VoteSwiper },
 };
 </script>
 <style lang="scss" scoped>

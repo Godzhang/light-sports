@@ -1,9 +1,7 @@
 <template>
   <div class="load" ref="load">
     <div class="round"></div>
-    <div class="tip">
-      施主莫急，调色中...
-    </div>
+    <div class="tip">施主莫急，调色中...</div>
   </div>
 </template>
 <script>
@@ -36,6 +34,7 @@ export default {
         this.$audio_bg.playEntry();
         // let myEvent = new Event("play");
         // document.addEventListener("play", () => {
+        //   this.$audio_bg.playEntry();
         // });
         // if (window.dispatchEvent) {
         //   window.dispatchEvent(myEvent);
@@ -46,8 +45,8 @@ export default {
     },
     preloadImages() {
       const load = this.$refs.load;
-      const loadReqs = flattenAtlas[this.store.colorType].map(url => {
-        return new Promise(resolve => {
+      const loadReqs = flattenAtlas[this.store.colorType].map((url) => {
+        return new Promise((resolve) => {
           const img = new Image();
           img.onload = resolve;
           img.onerror = resolve;
@@ -60,8 +59,8 @@ export default {
           load.remove();
         });
       });
-    }
-  }
+    },
+  },
 };
 </script>
 <style lang="scss" scoped>

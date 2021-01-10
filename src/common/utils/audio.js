@@ -1,3 +1,5 @@
+import { sleep } from "./utils";
+
 const audio_bg = new Audio();
 const audio_band = new Audio();
 
@@ -43,11 +45,12 @@ const playEntry = () => {
   audio_bg.src = url;
   audio_bg.play();
   audio_bg.muted = false;
+  audio_bg.volume = 1;
 
   isPlaying = true;
 };
 
-const play_band = (type, name) => {
+const play_band = async (type, name, flag = true) => {
   if (!type || !name) return;
 
   let url = "";
@@ -65,9 +68,15 @@ const play_band = (type, name) => {
   isBandPlaying = true;
 
   // 播放特效音时减小背景音的声音
-  audio_bg.volume = 0.2;
+  if (flag) {
+    audio_bg.volume = 0.2;
+  }
 
   audio_band.src = url;
+  // 科比的声音延时播放
+  if (type === "yellow" && name === 1) {
+    await sleep(4500);
+  }
   audio_band.play();
 };
 
@@ -82,7 +91,7 @@ const playMuted = () => {
   // audio_bg.muted = true;
   play_band.muted = true;
   // play_bg("flash");
-  play_band("yellow", "1");
+  play_band("yellow", "1", false);
   setTimeout(() => {
     // pause_bg();
     pause_band();
