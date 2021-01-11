@@ -4,11 +4,15 @@
     <Play />
     <Cover />
     <Load />
-    <VoteResult />
+    <VoteResult ref="vote" />
+    <audio id="audio_bg" ref="audio_bg" src></audio>
+    <audio id="audio_band" ref="audio_band" src></audio>
   </div>
 </template>
 <script>
+// import Vue from "vue";
 import axios from "axios";
+// import audio from "@/common/utils/audio";
 import Load from "../components/Load";
 import Cover from "../components/Cover";
 import Play from "../components/Play";
@@ -62,7 +66,7 @@ export default {
     };
   },
   created() {
-    axios.get("/savc?id=6").then(res => {
+    axios.get("/lightsports/savc?id=6").then(res => {
       const { data } = res;
       if (data.code === 200) {
         for (let key in data) {
@@ -70,6 +74,7 @@ export default {
             this.voteNums[numToColor[key]] = data[key];
           }
         }
+        this.$refs.vote.sortByNums();
       }
     });
   },
@@ -90,14 +95,17 @@ export default {
       this.showVote = bol;
     },
     setVoteNum() {
-      axios.post(`/savc?id=${colorToNum[this.colorType]}`).then(res => {
-        const { data } = res;
-        if (data.code === 200) {
-          this.voteNums[this.colorType] = data.count;
-          this.voteStatus[this.colorType] = true;
-          this.setVoteVisible(true);
-        }
-      });
+      axios
+        .post(`/lightsports/savc?id=${colorToNum[this.colorType]}`)
+        .then(res => {
+          const { data } = res;
+          if (data.code === 200) {
+            this.voteNums[this.colorType] = data.count;
+            this.voteStatus[this.colorType] = true;
+            this.$refs.vote.sortByNums();
+            this.setVoteVisible(true);
+          }
+        });
     }
   },
   components: {
@@ -114,5 +122,12 @@ export default {
   position: relative;
   width: 100%;
   height: 100%;
+  #audio_bg,
+  #audio_band {
+    position: absolute;
+    top: 0;
+    left: -9999px;
+    visibility: hidden;
+  }
 }
 </style>

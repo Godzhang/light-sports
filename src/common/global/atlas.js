@@ -205,10 +205,11 @@ export const whiteAtlasCover = whiteAtlas.map((item, i) => {
   return item[item.length - 1];
 });
 export const yellowAtlasCover = yellowAtlas.map((item, i) => {
-  if (i === 0) {
-    return item[0];
-  }
-  return item[item.length - 1];
+  // if (i === 0) {
+  //   return item[0];
+  // }
+  // return item[item.length - 1];
+  return item[0];
 });
 
 export const altasCover = {
@@ -281,16 +282,18 @@ export const atlasDesc = {
 
 export const atlasCoverText = {
   red: [
-    // `“小红人儿”来啦`,
-    `小红人儿来啦`,
+    `“小红人儿”来啦`,
+    // `小红人儿来啦`,
     "太极拳申遗成功",
     "国球威武",
     // `全力以“复”`,
-    `全力以复`,
+    // `全力以复`,
+    [`全`, `力`, `以`, `“复”`],
     "女篮精神出圈",
     "红土封王",
     // `“红”霸天下`
-    `红霸天下`
+    // `红霸天下`
+    [`“红”`, `霸`, `天`, `下`]
   ],
   green: ["拥抱绿水青山", "绿茵场恢复生机", "我爱体育课"],
   // blue: ["再见迭戈", "澳网", "蓝色风暴", "新世界纪录！", "水中乐趣"],

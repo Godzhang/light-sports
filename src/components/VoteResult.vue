@@ -11,24 +11,37 @@
   </div>
 </template>
 <script>
+import { copy } from "@/common/utils/utils";
 import VoteSwiper from "./VoteSwiper";
-
-const themes = ["red", "yellow", "blue", "white", "green"];
 
 export default {
   inject: ["store"],
   data() {
     return {
-      themes,
-      voteDisplay: "",
+      themes: ["red", "green", "blue", "white", "yellow"],
+      voteDisplay: ""
     };
+  },
+  mounted() {
+    this.sortByNums();
   },
   watch: {
     "store.showVote"(isShow) {
       this.voteDisplay = isShow ? "show" : "hide";
-    },
+    }
   },
-  components: { VoteSwiper },
+  methods: {
+    sortByNums() {
+      const voteNums = this.store.voteNums;
+      const arr = [];
+      for (let key in voteNums) {
+        arr.push({ key, nums: voteNums[key] });
+      }
+      arr.sort((a, b) => b.nums - a.nums);
+      this.themes = arr.map(item => item.key);
+    }
+  },
+  components: { VoteSwiper }
 };
 </script>
 <style lang="scss" scoped>
@@ -87,7 +100,8 @@ export default {
     height: 85vh;
     padding: 9vw 3vw;
     background: #e2e4e9;
-    overflow: auto;
+    overflow-y: auto;
+    overflow-x: hidden;
     .list {
       .item + .item {
         margin-top: 9vw;

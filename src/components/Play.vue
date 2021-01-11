@@ -16,7 +16,7 @@
         class="img"
         v-for="(img, i) in images"
         :key="i"
-        :style="{ 'z-index': i }"
+        :style="{ 'z-index': i + 1 }"
         ref="img"
       >
         <img :src="img" class="int" alt />
@@ -128,9 +128,10 @@ export default {
     },
     initSize() {
       const imgs = this.$refs.img;
-      imgs.forEach(img => {
+      imgs.forEach((img, i) => {
         img.style.width = newWidth + "px";
         img.style.height = newHeight + "px";
+        img.style.opacity = i === 0 ? 1 : 0;
       });
       // const documentWidth = document.body.clientWidth;
 
@@ -154,7 +155,7 @@ export default {
     async play() {
       const { imageBox, play, skip, mask, title, desc } = this.$refs;
       const imgs = this.$refs.img;
-      const wait = 2500;
+      const wait = this.theme === "yellow" ? 3000 : 2500;
       const points = atlasBreakPoints[this.theme];
       let prevTitleIndex = 1;
 
@@ -171,9 +172,9 @@ export default {
           // 切换图集后，尝试播放特效音
           try {
             if (this.prevTitleIndex !== this.titleIndex + 1) {
-              this.$audio_band.pause();
+              this.$pauseBand();
             }
-            this.$audio_band.play(this.theme, this.titleIndex + 1);
+            this.$playBand(this.theme, this.titleIndex + 1);
             prevTitleIndex = this.titleIndex + 1;
           } catch (e) {
             console.log("not have relative audio");
@@ -201,7 +202,7 @@ export default {
         await sleep(wait);
         setTimeout(() => {
           Velocity(nextImage, { scale: 1 }, { duration: 0, mobileHA: false });
-        }, 1500);
+        }, 500);
         if (i === imgs.length - 2) {
           return Promise.resolve();
         } else {
@@ -213,7 +214,7 @@ export default {
       if (this.isAllAtlas) {
         // 如果第一组图有特效音，播放
         try {
-          this.$audio_band.play(this.theme, 1);
+          this.$playBand(this.theme, 1);
         } catch (e) {
           console.log("not have relative audio");
         }
@@ -237,7 +238,7 @@ export default {
             { opacity: 1 },
             { duration: 300, delay: 1800, mobileHA: false }
           );
-          await sleep(4000);
+          await sleep(3500);
         } else {
           await sleep(3000);
           Velocity(
@@ -251,11 +252,11 @@ export default {
             { opacity: 1 },
             { duration: 300, delay: 150, mobileHA: false }
           );
-          await sleep(wait);
+          await sleep(1500);
         }
       } else {
         try {
-          this.$audio_band.play(this.theme, this.store.groupIndex + 1);
+          this.$playBand(this.theme, this.store.groupIndex + 1, false);
         } catch (e) {
           console.log("not have relative audio");
         }
@@ -295,13 +296,13 @@ export default {
     async flash(playAudio = true) {
       const { mask, play, skip, title, desc } = this.$refs;
 
+      this.$pauseBand();
       if (playAudio) {
-        this.$audio_bg.play("flash");
+        this.$playBg("flash");
         await sleep(300); // 相机声音预留的时间
       } else {
-        this.$audio_bg.pause();
+        this.$pauseBg();
       }
-      this.$audio_band.pause();
 
       this.store.nextStep();
       mask.classList.add("animate");
@@ -376,11 +377,11 @@ export default {
       left: 50%;
       transform: translate(-50%, -50%);
       width: 100%;
-      opacity: 0;
+      // opacity: 0;
       overflow: hidden;
       transform-origin: 50% 50%;
       &:first-child {
-        opacity: 1;
+        // opacity: 1;
         &.yellow-one-animate {
           // animation: yellow0Clarity 7s ease-in-out forwards;
           animation: yellowOneClarity 7s cubic-bezier(0.39, 0.575, 0.565, 1)

@@ -30,7 +30,7 @@
       <div class="swiper-pagination" slot="pagination"></div>
     </div>
     <div class="tip">
-      <img class="tip-pic" src="../assets/shuffle/tip.png" alt="" />
+      <img class="tip-pic" src="../assets/shuffle/tip.png" alt />
     </div>
   </div>
 </template>
@@ -78,11 +78,6 @@ export default {
       }
       if (step === 4) {
         this.showPage();
-        // Velocity(
-        //   this.$refs.shuffle,
-        //   { translateY: "0%", opacity: 1 },
-        //   { duration: 0, mobileHA: false }
-        // );
       }
     });
     this.$watch("store.colorType", type => {
@@ -143,7 +138,7 @@ export default {
       shuffle.style.transform = `translateY(-100%)`;
       shuffle.style.zIndex = prevzIndex;
       if (pageNum === 3) {
-        this.$audio_bg.play(this.type);
+        this.$playBg(this.type);
       }
     },
     setTranslate(swiper, translate) {
@@ -329,15 +324,15 @@ export default {
     transform: translateX(-50%);
     width: 91vw;
     height: 52vw;
-    @each $colorName, $color in $paginationActiveColors {
-      &.#{"" + $colorName} {
-        .swiper-pagination {
-          ::v-deep .swiper-pagination-bullet-active {
-            background-color: $color;
-          }
-        }
-      }
-    }
+    // @each $colorName, $color in $paginationActiveColors {
+    //   &.#{"" + $colorName} {
+    //     .swiper-pagination {
+    //       ::v-deep .swiper-pagination-bullet-active {
+    //         background-color: $color;
+    //       }
+    //     }
+    //   }
+    // }
   }
   .swiper-container {
     position: absolute;
@@ -353,13 +348,14 @@ export default {
     left: 0;
     ::v-deep .swiper-pagination-bullet {
       margin: 0 5px;
-      background: #fff;
+      background-color: rgba(255, 255, 255, 0.6);
       opacity: 1;
     }
     ::v-deep .swiper-pagination-bullet-active {
       width: 16px;
       height: 16px;
       transform: translateY(4px);
+      background-color: #fff;
     }
   }
   .image-box {
@@ -378,7 +374,7 @@ export default {
   .tip {
     position: absolute;
     left: 50%;
-    bottom: 35vw;
+    bottom: 42vw;
     transform: translateX(-50%);
     width: 30vw;
     .tip-pic {

@@ -42,10 +42,11 @@ const pause_bg = () => {
 const playEntry = () => {
   const url = require("../../assets/mp3/bg/entry.mp3");
   audio_bg.muted = true;
+  audio_bg.loop = true;
   audio_bg.src = url;
   audio_bg.play();
-  audio_bg.muted = false;
   audio_bg.volume = 1;
+  audio_bg.muted = false;
 
   isPlaying = true;
 };
@@ -54,12 +55,18 @@ const play_band = async (type, name, flag = true) => {
   if (!type || !name) return;
 
   let url = "";
-  if (!cache_band[`${type}-${name}`]) {
-    cache_band[
-      `${type}-${name}`
-    ] = url = require(`../../assets/mp3/${type}/${name}.mp3`);
+  const key = `${type}-${name}`;
+  if (cache_band[key] === "none") {
+    return;
+  } else if (!cache_band[key]) {
+    try {
+      cache_band[key] = url = require(`../../assets/mp3/${type}/${name}.mp3`);
+    } catch (e) {
+      cache_band[key] = "none";
+      return;
+    }
   } else {
-    url = cache_band[`${type}-${name}`];
+    url = cache_band[key];
   }
 
   if (isBandPlaying) {
@@ -68,14 +75,18 @@ const play_band = async (type, name, flag = true) => {
   isBandPlaying = true;
 
   // 播放特效音时减小背景音的声音
-  if (flag) {
-    audio_bg.volume = 0.2;
-  }
 
   audio_band.src = url;
   // 科比的声音延时播放
-  if (type === "yellow" && name === 1) {
-    await sleep(4500);
+  if (name === 1) {
+    if (type === "yellow") {
+      await sleep(4500);
+    } else {
+      await sleep(2000);
+    }
+  }
+  if (flag) {
+    audio_bg.volume = 0.2;
   }
   audio_band.play();
 };
@@ -114,11 +125,12 @@ export default {
       play: play_bg,
       pause: pause_bg,
       playEntry,
-      playMuted
+      audio: audio_bg
     };
     Vue.prototype.$audio_band = {
       play: play_band,
-      pause: pause_band
+      pause: pause_band,
+      playMuted
     };
     document.body.appendChild(audio_bg);
     document.body.appendChild(audio_band);

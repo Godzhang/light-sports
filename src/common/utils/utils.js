@@ -86,3 +86,11 @@ export const formatUrl = (url, param = {}) => {
   const jointer = url.includes("?") ? "&" : "?";
   return url + jointer + paramStr;
 };
+
+export const copy = obj => {
+  const result = {};
+  for (let key in obj) {
+    result[key] = obj[key];
+  }
+  return result;
+};

@@ -73,15 +73,19 @@ const drawText = (context, type, index) => {
     textLeft: 80 * vw
   };
 
-  context.font = `${fontSize}px bold 黑体`;
-  context.fillStyle = "#fff";
-  context.strokeStyle = "#000";
   context.textAlign = "center";
   context.textBaseline = "middle";
   for (let i = 0; i < value.length; i++) {
     let top = textTop + i * disRatio;
-    context.fillText(value[i], textLeft, top);
-    // context.strokeText(value[i], textLeft, top);
+    let text = Array.isArray(value[i]) ? value[i].join("") : value[i];
+    context.font = `bold ${fontSize}px 黑体`;
+    context.strokeStyle = "#000";
+    context.lineWidth = 2;
+    context.strokeText(value[i], textLeft, top);
+
+    context.font = `bold ${fontSize}px 黑体`;
+    context.fillStyle = "#fff";
+    context.fillText(text, textLeft, top);
   }
 };
 

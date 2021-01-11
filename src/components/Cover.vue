@@ -25,7 +25,6 @@
     <div class="logo" ref="logo">
       <img class="logo-pic" src="../assets/cover/logo.png" />
     </div>
-    <div class="flash" ref="flash"></div>
     <a
       :class="['vote-entry', store.colorType]"
       ref="voteEntry"
@@ -40,7 +39,7 @@ import Velocity from "velocity-animate";
 import {
   gradientColors,
   gradientRgbColors,
-  coverBgColors,
+  coverBgColors
 } from "@/common/global/colors.js";
 import {
   hexToRgba,
@@ -48,7 +47,7 @@ import {
   getMixColorRgbStr,
   sleep,
   clip,
-  once,
+  once
 } from "@/common/utils/utils.js";
 import { atlas, flattenAtlas } from "@/common/global/atlas";
 import { themes } from "@/common/global/global";
@@ -58,7 +57,7 @@ const documentHeight = document.body.clientHeight;
 const vw = documentWidth / 100;
 
 const lamps = {};
-themes.forEach((color) => {
+themes.forEach(color => {
   lamps[color] = require(`../assets/cover/${color}-lamp.png`);
 });
 
@@ -90,10 +89,9 @@ export default {
               this.calcSlidePos();
             });
           },
-          progress: (progress) => {
+          progress: progress => {
             this.$nextTick(() => {
               this.calcSlidePos(progress);
-              this.currProgress = progress;
             });
           },
           transitionEnd: () => {
@@ -109,9 +107,9 @@ export default {
           },
           slidePrevTransitionStart: () => {
             this.moveDir = "left";
-          },
-        },
-      },
+          }
+        }
+      }
     };
   },
   created() {
@@ -127,7 +125,11 @@ export default {
         // 如果不是从Load页面进入，需重置页面
         if (prevStep !== 1) {
           this.resetCoverPage();
-          this.$audio_bg.playEntry();
+          this.$playBg("entry");
+          // 如果从图集页返回，自动往下啵一个
+          setTimeout(() => {
+            this.swiper.slideNext(300);
+          }, 800);
         }
         this.showPage(); // 显示整体页面
         await this.showParts(); // 显示页面各部分
@@ -141,7 +143,7 @@ export default {
     },
     theme() {
       return this.store.colorType;
-    },
+    }
   },
   watch: {
     theme(theme) {
@@ -151,7 +153,7 @@ export default {
       if (coverBgColor !== bgColor) {
         coverBg.style.backgroundColor = coverBgColors[theme];
       }
-    },
+    }
   },
   methods: {
     init() {
@@ -162,7 +164,7 @@ export default {
     bindAudio() {
       const lampBox = this.$refs.lampBox;
       once(lampBox, "touchstart", () => {
-        this.$audio_bg.playMuted();
+        this.$initPlayBand();
       });
     },
     bindSwiper() {
@@ -170,12 +172,12 @@ export default {
       let startX = 0;
       let startTime = 0;
 
-      swiperDom.addEventListener("touchstart", (e) => {
+      swiperDom.addEventListener("touchstart", e => {
         this.isSliding = true;
         startX = e.touches[0].clientX;
         startTime = Date.now();
       });
-      swiperDom.addEventListener("touchmove", (e) => {
+      swiperDom.addEventListener("touchmove", e => {
         if (!this.isSliding) return;
         this.moveX = Math.abs(e.touches[0].clientX - startX);
         if (e.touches[0].clientX - startX < 0) {
@@ -211,7 +213,7 @@ export default {
         voteEntry,
         {
           translateX: ["0%", "-100%"],
-          opacity: 1,
+          opacity: 1
         },
         { duration: 800, delay: 800, mobileHA: false }
       );
@@ -244,10 +246,10 @@ export default {
       Velocity(lampLight, { opacity: 0 }, { duration: 300, mobileHA: false });
       await Velocity(lamp, { opacity: 0 }, { duration: 300, mobileHA: false });
       this.hidePage();
-      this.$audio_bg.play(this.theme);
+      this.$playBg(this.theme);
     },
     async showGradient(gradient, lamp, lampLight) {
-      return new Promise((resolve) => {
+      return new Promise(resolve => {
         let percentage = 0;
         let timer = null;
         const fn = () => {
@@ -284,9 +286,9 @@ export default {
             }, 1500);
           }
           lamp.style.opacity = 1 - percentage;
-          gradient.style.boxShadow = `0 0 ${120}px ${
-            (percentage * documentHeight) / 1.2
-          }px rgba(${gradientRgbColors[this.theme]}, 1)`;
+          gradient.style.boxShadow = `0 0 ${140}px ${(percentage *
+            documentHeight) /
+            1.2}px rgba(${gradientRgbColors[this.theme]}, 1)`;
 
           timer = requestAnimationFrame(fn);
         };
@@ -319,8 +321,12 @@ export default {
         } else {
           lamp.style.filter = `brightness(${activeIndex === i ? 1 : 0.3})`;
         }
-
         Velocity(slide, { translateY, scale, zIndex }, { duration: 0 });
+
+        // slide.style.webkitTransform = `translate3d(0, ${translateY}px, 0) scale(${scale})`;
+        // slide.style.transform = `translate3d(0, ${translateY}px, 0) scale(${scale})`;
+        // slide.style.zIndex = zIndex;
+        // console.log(slide);
       }
     },
     // changeCoverBg(progress) {
@@ -359,8 +365,8 @@ export default {
           activeIndex - 2,
           activeIndex - 1,
           activeIndex + 1,
-          activeIndex + 2,
-        ].filter((i) => i !== prevIndex);
+          activeIndex + 2
+        ].filter(i => i !== prevIndex);
         const random = Math.floor(Math.random() * arr.length);
         const index = arr[random];
         const slide = slides[index];
@@ -409,8 +415,6 @@ export default {
       this.isTrigger = false;
     },
     resetPage() {
-      // this.$refs.note.style.opacity = 0;
-      // this.$refs.logo.style.opacity = 0;
       this.$refs.cover.style.opacity = 1;
       this.$refs.cover.style.transform = `translateY(0)`;
     },
@@ -428,14 +432,14 @@ export default {
       const currentSlide = this.swiper.slides[this.swiper.activeIndex];
       const parent = currentSlide.parentNode;
       const childs = Array.from(parent.childNodes);
-      const index = childs.findIndex((child) => child === currentSlide);
+      const index = childs.findIndex(child => child === currentSlide);
 
       childs[index - 2].style.opacity = 1;
       childs[index - 1].style.opacity = 1;
       childs[index + 1].style.opacity = 1;
       childs[index + 2].style.opacity = 1;
-    },
-  },
+    }
+  }
 };
 </script>
 <style lang="scss" scoped>
@@ -463,13 +467,21 @@ $lamp-height: 130vw;
     transform: translateX(-50%);
     width: 100%;
     height: 100%;
+    z-index: 999;
     .swiper-container {
       position: absolute;
       top: 0;
       left: 0;
       width: 100%;
       height: 100%;
+      ::v-deep .swiper-wrapper {
+        perspective: 3000;
+        -webkit-perspective: 3000;
+        -webkit-backface-visibility: hidden;
+        backface-visibility: hidden;
+      }
       ::v-deep .swiper-slide {
+        will-change: transform;
         width: $lamp-width;
         height: $lamp-height;
         opacity: 0;
@@ -550,20 +562,6 @@ $lamp-height: 130vw;
       width: 100%;
     }
   }
-  .flash {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    display: none;
-    z-index: 10;
-    background-color: #fff;
-    &.animate {
-      display: block;
-      animation: flash 0.6s ease forwards;
-    }
-  }
   .vote-entry {
     display: block;
     position: absolute;
@@ -572,6 +570,7 @@ $lamp-height: 130vw;
     width: 48vw;
     height: 9.07vw;
     transform: translateX(-100%);
+    z-index: 1001;
     @media screen and (max-width: 320px) {
       left: -7vw;
       width: 52vw;

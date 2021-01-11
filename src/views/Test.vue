@@ -4,7 +4,23 @@
       <img src="../assets/cover/green-lamp.png" alt />
       <div class="mask"></div>
     </div>-->
-    <img :src="src" alt />
+    <img ref="img" @click="playAudio" :src="src" alt />
+    <button style="width: 200px" @click="changeVol(2)">
+      2
+    </button>
+    <br />
+    <button style="width: 200px" @click="changeVol(4)">
+      4
+    </button>
+    <br />
+    <button style="width: 200px" @click="changeVol(6)">
+      6
+    </button>
+    <br />
+    <button style="width: 200px" @click="changeVol(8)">
+      8
+    </button>
+    <!-- <audio src ref="audio"></audio> -->
     <!-- <canvas id="canvas" ref="canvas"></canvas> -->
   </div>
   <!-- <div class="test" ref="test">
@@ -12,7 +28,9 @@
   </div>-->
 </template>
 <script>
+import { Howl, Howler } from "howler";
 import { atlas, redAtlasCover } from "@/common/global/atlas";
+import { once } from "@/common/utils/utils";
 import getCompositionUrl from "@/common/utils/composition";
 
 const vw = document.body.clientWidth / 100;
@@ -23,17 +41,21 @@ export default {
   data() {
     return {
       src: "",
-      iframe: null
+      iframe: null,
+      sound: null,
+      url: ""
     };
   },
   mounted() {
     this.init();
+    this.initHowl();
+    // this.playAudio();
     // this.initCanvas();
   },
   methods: {
     async init() {
       // const pics = atlas.red.reduce((res, curr) => [...res, ...curr], []);
-      let color = "red";
+      let color = "green";
       const pics = atlas[color][0];
       const result = await getCompositionUrl(pics, color);
       this.src = result[0];
@@ -56,6 +78,37 @@ export default {
       img.onload = () => {
         context.drawImage(img, 0, 0, imageWidth, imageHeight);
       };
+    },
+    playAudio() {
+      this.sound.stop();
+      this.url = require("../assets/mp3/bg/red.mp3");
+      this.sound.unload();
+      this.sound = new Howl({
+        src: [this.url],
+        volume: 1
+      });
+      this.sound.play();
+      // const url = require("../assets/mp3/bg/yellow.mp3");
+      // this.$refs.audio.src = url;
+      // this.$refs.audio.play();
+      // this.$audio_bg.play("yellow");
+      // this.$audio_band.play("yellow", 1);
+    },
+    changeVol(vol) {
+      this.sound.volume(vol / 10);
+      // this.$refs.audio.volume = vol / 10;
+      // this.$audio_bg.audio.volume = vol / 10;
+    },
+    initHowl() {
+      this.url = require("../assets/mp3/bg/yellow.mp3");
+      this.sound = new Howl({
+        src: [this.url],
+        volume: 1,
+        autoplay: true
+      });
+      console.log(this.sound);
+
+      // this.sound.play();
     }
   }
 };
