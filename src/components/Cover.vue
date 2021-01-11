@@ -39,7 +39,7 @@ import Velocity from "velocity-animate";
 import {
   gradientColors,
   gradientRgbColors,
-  coverBgColors
+  coverBgColors,
 } from "@/common/global/colors.js";
 import {
   hexToRgba,
@@ -47,7 +47,7 @@ import {
   getMixColorRgbStr,
   sleep,
   clip,
-  once
+  once,
 } from "@/common/utils/utils.js";
 import { atlas, flattenAtlas } from "@/common/global/atlas";
 import { themes } from "@/common/global/global";
@@ -57,7 +57,7 @@ const documentHeight = document.body.clientHeight;
 const vw = documentWidth / 100;
 
 const lamps = {};
-themes.forEach(color => {
+themes.forEach((color) => {
   lamps[color] = require(`../assets/cover/${color}-lamp.png`);
 });
 
@@ -89,7 +89,7 @@ export default {
               this.calcSlidePos();
             });
           },
-          progress: progress => {
+          progress: (progress) => {
             this.$nextTick(() => {
               this.calcSlidePos(progress);
             });
@@ -107,9 +107,9 @@ export default {
           },
           slidePrevTransitionStart: () => {
             this.moveDir = "left";
-          }
-        }
-      }
+          },
+        },
+      },
     };
   },
   created() {
@@ -143,7 +143,7 @@ export default {
     },
     theme() {
       return this.store.colorType;
-    }
+    },
   },
   watch: {
     theme(theme) {
@@ -153,7 +153,7 @@ export default {
       if (coverBgColor !== bgColor) {
         coverBg.style.backgroundColor = coverBgColors[theme];
       }
-    }
+    },
   },
   methods: {
     init() {
@@ -172,12 +172,12 @@ export default {
       let startX = 0;
       let startTime = 0;
 
-      swiperDom.addEventListener("touchstart", e => {
+      swiperDom.addEventListener("touchstart", (e) => {
         this.isSliding = true;
         startX = e.touches[0].clientX;
         startTime = Date.now();
       });
-      swiperDom.addEventListener("touchmove", e => {
+      swiperDom.addEventListener("touchmove", (e) => {
         if (!this.isSliding) return;
         this.moveX = Math.abs(e.touches[0].clientX - startX);
         if (e.touches[0].clientX - startX < 0) {
@@ -213,7 +213,7 @@ export default {
         voteEntry,
         {
           translateX: ["0%", "-100%"],
-          opacity: 1
+          opacity: 1,
         },
         { duration: 800, delay: 800, mobileHA: false }
       );
@@ -249,7 +249,7 @@ export default {
       this.$playBg(this.theme);
     },
     async showGradient(gradient, lamp, lampLight) {
-      return new Promise(resolve => {
+      return new Promise((resolve) => {
         let percentage = 0;
         let timer = null;
         const fn = () => {
@@ -286,9 +286,9 @@ export default {
             }, 1500);
           }
           lamp.style.opacity = 1 - percentage;
-          gradient.style.boxShadow = `0 0 ${140}px ${(percentage *
-            documentHeight) /
-            1.2}px rgba(${gradientRgbColors[this.theme]}, 1)`;
+          gradient.style.boxShadow = `0 0 ${140}px ${
+            (percentage * documentHeight) / 1.2
+          }px rgba(${gradientRgbColors[this.theme]}, 1)`;
 
           timer = requestAnimationFrame(fn);
         };
@@ -365,8 +365,8 @@ export default {
           activeIndex - 2,
           activeIndex - 1,
           activeIndex + 1,
-          activeIndex + 2
-        ].filter(i => i !== prevIndex);
+          activeIndex + 2,
+        ].filter((i) => i !== prevIndex);
         const random = Math.floor(Math.random() * arr.length);
         const index = arr[random];
         const slide = slides[index];
@@ -432,14 +432,14 @@ export default {
       const currentSlide = this.swiper.slides[this.swiper.activeIndex];
       const parent = currentSlide.parentNode;
       const childs = Array.from(parent.childNodes);
-      const index = childs.findIndex(child => child === currentSlide);
+      const index = childs.findIndex((child) => child === currentSlide);
 
       childs[index - 2].style.opacity = 1;
       childs[index - 1].style.opacity = 1;
       childs[index + 1].style.opacity = 1;
       childs[index + 2].style.opacity = 1;
-    }
-  }
+    },
+  },
 };
 </script>
 <style lang="scss" scoped>
@@ -544,7 +544,7 @@ $lamp-height: 130vw;
   }
   .note {
     position: absolute;
-    bottom: 25vw;
+    bottom: 22vw;
     left: 50%;
     transform: translateX(-50%);
     width: 65vw;

@@ -27,7 +27,7 @@
         v-if="atlasTitle[theme][titleIndex]"
         :style="{
           'font-size':
-            atlasTitle[theme][titleIndex].length > 10 ? '24px' : '30px'
+            atlasTitle[theme][titleIndex].length > 10 ? '24px' : '30px',
         }"
         v-html="atlasTitle[theme][titleIndex]"
       ></div>
@@ -43,7 +43,7 @@ import {
   atlas,
   atlasTitle,
   atlasDesc,
-  atlasBreakPoints
+  atlasBreakPoints,
 } from "@/common/global/atlas";
 import { sleep } from "@/common/utils/utils";
 import { coverBgColors } from "@/common/global/colors";
@@ -64,7 +64,7 @@ export default {
       images: [],
       titleIndex: 0,
       isCurrentPage: false,
-      isAllAtlas: true
+      isAllAtlas: true,
     };
   },
   mounted() {
@@ -92,10 +92,10 @@ export default {
         await this.initSize();
         this.showPage();
         this.initTextPos();
-        await this.play();
+        this.play();
       });
     });
-    this.$watch("store.groupIndex", groupIndex => {
+    this.$watch("store.groupIndex", (groupIndex) => {
       this.setTitleIndex();
     });
   },
@@ -105,7 +105,7 @@ export default {
     },
     firstImageAnimateClass() {
       return `${this.theme}-one-animate`;
-    }
+    },
   },
   methods: {
     init() {
@@ -160,8 +160,7 @@ export default {
       let prevTitleIndex = 1;
 
       const walk = async (i = 0) => {
-        if (!this.isCurrentPage) return Promise.reject(new Error("stop"));
-        const curr = imgs[i];
+        if (!this.isCurrentPage) return;
         const next = imgs[i + 1];
         const isReverse = (i + 1) % 2 === 0;
         const nextImage = next.childNodes[0];
@@ -171,7 +170,7 @@ export default {
 
           // 切换图集后，尝试播放特效音
           try {
-            if (this.prevTitleIndex !== this.titleIndex + 1) {
+            if (prevTitleIndex !== this.titleIndex + 1) {
               this.$pauseBand();
             }
             this.$playBand(this.theme, this.titleIndex + 1);
@@ -194,19 +193,21 @@ export default {
           {
             scale: isReverse ? 1 : 1.05,
             translateX: ["-50%", "-50%"],
-            translateY: ["-50%", "-50%"]
+            translateY: ["-50%", "-50%"],
           },
           { duration: 2500, mobileHA: false, queue: false }
         );
 
         await sleep(wait);
-        setTimeout(() => {
-          Velocity(nextImage, { scale: 1 }, { duration: 0, mobileHA: false });
-        }, 500);
+        Velocity(
+          nextImage,
+          { scale: 1 },
+          { duration: 0, delay: 500, mobileHA: false }
+        );
         if (i === imgs.length - 2) {
-          return Promise.resolve();
+          this.flash();
         } else {
-          await walk(i + 1);
+          walk && walk(i + 1);
         }
       };
 
@@ -267,7 +268,7 @@ export default {
           {
             scale: 1,
             translateX: ["-50%", "-50%"],
-            translateY: ["-50%", "-50%"]
+            translateY: ["-50%", "-50%"],
           },
           { duration: 2500, mobileHA: false, queue: false }
         );
@@ -289,9 +290,7 @@ export default {
         await sleep(wait);
       }
 
-      await walk();
-
-      this.flash();
+      walk();
     },
     async flash(playAudio = true) {
       const { mask, play, skip, title, desc } = this.$refs;
@@ -343,8 +342,8 @@ export default {
       } else {
         this.titleIndex = this.store.groupIndex;
       }
-    }
-  }
+    },
+  },
 };
 </script>
 <style lang="scss" scoped>

@@ -96,7 +96,7 @@ const playBand = async (type, name, isAllAtlas = true) => {
       await sleep(2000);
     }
   } else if (!isAllAtlas) {
-    await sleep(2500);
+    await sleep(1000);
   }
   // console.log(audio_bg);
 
